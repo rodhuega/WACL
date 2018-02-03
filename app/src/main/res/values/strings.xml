@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">WACL</string>
+    <string name="action_settings">Settings</string>
+    <string name="button_cancel_text">Cancel</string>
+    <string name="button_save_text">Save</string>
+    <string name="repeat_text">Repeat</string>
+    <string name="m_text">M</string>
+    <string name="t_text">T</string>
+    <string name="w_text">W</string>
+    <string name="r_text">R</string>
+    <string name="f_text">F</string>
+    <string name="s_text">S</string>
+    <string name="u_text">U</string>
+</resources>

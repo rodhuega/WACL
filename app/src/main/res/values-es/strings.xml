@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WACL</string>
+    <string name="action_settings">Ajustes</string>
+    <string name="button_cancel_text">Cancelar</string>
+    <string name="button_save_text">Guardar</string>
+    <string name="repeat_text">Repetir</string>
+    <string name="m_text">L</string>
+    <string name="t_text">M</string>
+    <string name="w_text">X</string>
+    <string name="r_text">J</string>
+    <string name="f_text">V</string>
+    <string name="s_text">S</string>
+    <string name="u_text">D</string>
+</resources>
