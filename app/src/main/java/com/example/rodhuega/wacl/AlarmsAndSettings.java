@@ -17,22 +17,43 @@ public class AlarmsAndSettings implements Serializable{
     //Muchos aspectos por cubrir
     private ArrayList<Alarm> alarms;
 
+    //Contador de ids
+    private long nID;
+
     //Constructor en caso de que sea la primera vez que se abre la app
     public AlarmsAndSettings() {
+        nID=0;
         alarms = new ArrayList<Alarm>();
     }
 
     //Constructor para cargar la info de otras sesiones de uso de la app
-    public AlarmsAndSettings(ArrayList<Alarm> alarms) {
+    public AlarmsAndSettings(long nID,ArrayList<Alarm> alarms) {
+        this.nID=nID;
         this.alarms=alarms;
     }
+
 
     /**
      * Metodo que añade una alarma a la configuracion
      * @param a, Alarm
      */
     public void addAlarm(Alarm a) {
+        nID+=1;
         alarms.add(a);
+    }
+
+    /**
+     * Metodo que elimina la alarma que coincide con la id que se le ha pasado
+     * @param id, long
+     */
+    public void deleteAlarm(long id) {
+        boolean isDeleted = false;
+        for(int i = 0; i<alarms.size() && !isDeleted;i++) {
+            if(alarms.get(i).getId()==id){
+               isDeleted=true;
+               alarms.remove(i);
+            }
+        }
     }
 
     /**
@@ -75,11 +96,19 @@ public class AlarmsAndSettings implements Serializable{
         return alarms;
     }
 
+    public long getnID() {
+        return nID;
+    }
+
     /**
      * Metodo set que cambia las alarmas de la configuracion
      * @param alarms, ArrayList<Alarm>
      */
     public void setAlarms(ArrayList<Alarm> alarms) {
         this.alarms = alarms;
+    }
+
+    public void setnID(long nID) {
+        this.nID = nID;
     }
 }

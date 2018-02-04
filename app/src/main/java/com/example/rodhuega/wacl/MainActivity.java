@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+"/alarmsSettings16.alc";
+        alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+"/alarmsSettings17.alc";
         try {
             //Boton que crea una nueva alarma
             context = this;
@@ -195,6 +195,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.e("WIP", "pulsado delete de alarma");
+                ////////////faltaria hacer que no suene
+                try {
+                    //borrar Alarma del arrayList
+                    confAndAlarms.deleteAlarm(finalAlarm.getId());
+                    ///Reguardar la informacion del fichero
+                    AlarmsAndSettings.saveAlarms(confAndAlarms, alarmsSavedFilePath);
+                    //borrar y repintar la GUI
+                    alarmsLayout.removeAllViews();
+                    drawAllAlarms();
+                }catch (IOException ioe) {
+                    Log.e("ERR", "Error al borrar, tema de ficheros");
+                }
+
             }
         });
         ButtonsLayout.addView(deleteButton);

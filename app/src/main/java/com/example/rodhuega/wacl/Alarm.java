@@ -34,10 +34,14 @@ public class Alarm implements Serializable {
      */
     private Date dateToSound;
 
-
+    /**
+     * Int que representa una identificacion de la alarma
+     */
+    private long id;
 
     //Constructor para dias o siguiente hora
-    public Alarm(int hour, int minute, boolean[] days) {
+    public Alarm(long id,int hour, int minute, boolean[] days) {
+        this.id = id;
         this.enabled = true;
         this.hour =hour;
         this.minute=minute;
@@ -46,7 +50,8 @@ public class Alarm implements Serializable {
         this.dateToSound=null;
     }
     //Constructor para fecha
-    public Alarm(int hour, int minute, Date dateToSound) {
+    public Alarm(long id,int hour, int minute, Date dateToSound) {
+        this.id = id;
         this.enabled = true;
         this.hour=hour;
         this.minute= minute;
@@ -93,6 +98,10 @@ public class Alarm implements Serializable {
         return enabled;
     }
 
+    public long getId() {
+        return id;
+    }
+
     //Sets
 
 
@@ -118,5 +127,9 @@ public class Alarm implements Serializable {
 
     public void setMinute(int minute) {
         this.minute = minute;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }
