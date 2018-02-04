@@ -1,6 +1,12 @@
 package com.example.rodhuega.wacl;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+
 import java.io.Serializable;
+import java.util.Calendar;
 
 /**
  * Created by pillo on 03/02/2018.
@@ -69,6 +75,17 @@ public class Alarm implements Serializable {
             }
         }
         return resultado;
+    }
+
+
+    public void enableAlarmSound(AlarmManager am, Context ctx) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY,hour);
+        calendar.set(Calendar.MINUTE,minute);
+        AlarmManager alarmManager = am;
+        Intent goToEnable = new Intent(ctx, AlarmOperations.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,0,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
     }
 
     //Gets

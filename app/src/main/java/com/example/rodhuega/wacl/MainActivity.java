@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+"/alarmsSettings17.alc";
+        alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+"/alarmsSettings20.alc";
         try {
             //Boton que crea una nueva alarma
             context = this;
@@ -119,7 +119,16 @@ public class MainActivity extends AppCompatActivity {
 
         //Hora en la que sonara la alarma, se añade a infoLayout
         TextView time = new TextView(this.getApplicationContext());
-        time.setText(finalAlarm.getHour()+":"+finalAlarm.getMinute());
+        //Pasar la hora y los minutos a 2 digitos de longitud
+        String hourString =finalAlarm.getHour()+"";
+        if(hourString.length()==1) {
+            hourString="0"+hourString;
+        }
+        String minString =finalAlarm.getMinute()+"";
+        if(minString.length()==1) {
+            minString="0"+minString;
+        }
+        time.setText(hourString+":"+minString);
         infoLayout.addView(time);
         //añadir dias que se repite o fecha, haria falta if/else
         if(finalAlarm.getRepeat()) {
@@ -223,4 +232,5 @@ public class MainActivity extends AppCompatActivity {
         letterDayTextView.setText(dayLetter);
         container.addView(letterDayTextView);
     }
+
 }
