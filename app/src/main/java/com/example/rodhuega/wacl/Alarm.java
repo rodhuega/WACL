@@ -35,13 +35,35 @@ public class Alarm implements Serializable {
     private Date dateToSound;
 
 
+
     //Constructor para dias o siguiente hora
-    public Alarm(int hour, int minute, boolean repeat, boolean[] days) {
+    public Alarm(int hour, int minute, boolean[] days) {
         this.enabled = true;
+        this.hour =hour;
+        this.minute=minute;
+        this.days=days;
+        this.repeat = isRepeatEnabled();
+        this.dateToSound=null;
     }
     //Constructor para fecha
     public Alarm(int hour, int minute, Date dateToSound) {
         this.enabled = true;
+        this.hour=hour;
+        this.minute= minute;
+        this.dateToSound=dateToSound;
+        this.repeat=false;
+        //quiza haga falta hacer new y pasar el array de days a false.
+    }
+
+
+    public boolean isRepeatEnabled() {
+        boolean resultado = false;
+        for(int i =0; i< days.length && !resultado; i++) {
+            if(days[i]) {
+                resultado=true;
+            }
+        }
+        return resultado;
     }
 
     //Gets

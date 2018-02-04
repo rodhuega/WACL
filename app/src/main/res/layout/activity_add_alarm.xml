@@ -134,43 +134,43 @@
                 android:paddingLeft="5dp">
 
                 <CheckBox
-                    android:id="@+id/checkBox2"
+                    android:id="@+id/MBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
                 <CheckBox
-                    android:id="@+id/checkBox8"
+                    android:id="@+id/TBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
                 <CheckBox
-                    android:id="@+id/checkBox7"
+                    android:id="@+id/WBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
                 <CheckBox
-                    android:id="@+id/checkBox6"
+                    android:id="@+id/RBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
                 <CheckBox
-                    android:id="@+id/checkBox5"
+                    android:id="@+id/FBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
                 <CheckBox
-                    android:id="@+id/checkBox4"
+                    android:id="@+id/SBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
                 <CheckBox
-                    android:id="@+id/checkBox3"
+                    android:id="@+id/UBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />

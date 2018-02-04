@@ -12,4 +12,6 @@
     <string name="f_text">V</string>
     <string name="s_text">S</string>
     <string name="u_text">D</string>
+    <string name="edit_text">Editar</string>
+    <string name="delete_text">Eliminar</string>
 </resources>

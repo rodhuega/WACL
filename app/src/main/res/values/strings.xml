@@ -11,4 +11,6 @@
     <string name="f_text">F</string>
     <string name="s_text">S</string>
     <string name="u_text">U</string>
+    <string name="edit_text">Edit</string>
+    <string name="delete_text">Delete</string>
 </resources>
