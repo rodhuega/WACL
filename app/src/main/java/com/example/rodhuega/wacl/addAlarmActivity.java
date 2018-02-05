@@ -25,7 +25,7 @@ public class addAlarmActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_alarm);
-        alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+"/alarmsSettings20.alc";
+        alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+"/alarmsSettings22.alc";
         //Cargar el TimePicker de seleccion de la alarma y cambiarle el estilo
         alarmPicker =  (TimePicker)findViewById(R.id.alarmPicker);
         alarmPicker.setIs24HourView(true);
@@ -51,7 +51,6 @@ public class addAlarmActivity extends AppCompatActivity {
         try {
             //Comrobar si se repite la alarma varios dias y que dias son.
             boolean [] repeatArray = repeatBoxToArray();
-
             AlarmsAndSettings myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
             Alarm newAlarm = new Alarm(myAlarms.getnID() ,alarmPicker.getHour(), alarmPicker.getMinute(), repeatArray);
             myAlarms.getAlarms().add(newAlarm);

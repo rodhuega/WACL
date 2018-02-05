@@ -13,4 +13,5 @@
     <string name="u_text">U</string>
     <string name="edit_text">Edit</string>
     <string name="delete_text">Delete</string>
+    <string name="turnOff_text">Turn Off</string>
 </resources>

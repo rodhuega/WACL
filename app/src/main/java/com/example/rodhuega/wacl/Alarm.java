@@ -84,8 +84,17 @@ public class Alarm implements Serializable {
         calendar.set(Calendar.MINUTE,minute);
         AlarmManager alarmManager = am;
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
+        goToEnable.putExtra("action",1);
+        goToEnable.putExtra("alarmObject", this);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,0,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
+    }
+
+    public void disableAlarm(Context ctx) {
+        Intent goToDisable = new Intent(ctx, AlarmOperations.class);
+        goToDisable.putExtra("action",1);
+        goToDisable.putExtra("alarmObject", this);
+        ctx.startActivity(goToDisable);
     }
 
     //Gets
