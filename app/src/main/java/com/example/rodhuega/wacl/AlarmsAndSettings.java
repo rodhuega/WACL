@@ -14,11 +14,13 @@ import java.util.ArrayList;
  */
 
 public class AlarmsAndSettings implements Serializable{
+    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings111.alc";
+    public static final String CONSTTEMPORALALARM = "/temporalAlarm111.alm";
     //Muchos aspectos por cubrir
     private ArrayList<Alarm> alarms;
 
     //Contador de ids
-    private long nID;
+    private int nID;
 
     //Constructor en caso de que sea la primera vez que se abre la app
     public AlarmsAndSettings() {
@@ -27,7 +29,7 @@ public class AlarmsAndSettings implements Serializable{
     }
 
     //Constructor para cargar la info de otras sesiones de uso de la app
-    public AlarmsAndSettings(long nID,ArrayList<Alarm> alarms) {
+    public AlarmsAndSettings(int nID,ArrayList<Alarm> alarms) {
         this.nID=nID;
         this.alarms=alarms;
     }
@@ -54,6 +56,25 @@ public class AlarmsAndSettings implements Serializable{
                alarms.remove(i);
             }
         }
+    }
+
+    /**
+     * Metodo que busca una alarma con la id proporcionada
+     * @param id, long
+     * @return resultado, Alarm
+     */
+    public Alarm searchAlarmID(long id) {
+        boolean encontrado = false;
+        Alarm resultado = null;
+        int i = 0;
+        while(!encontrado && i<alarms.size()) {
+            if(alarms.get(i).getId()==id) {
+                resultado=alarms.get(i);
+                encontrado=true;
+            }
+            i++;
+        }
+        return resultado;
     }
 
     /**
@@ -96,7 +117,7 @@ public class AlarmsAndSettings implements Serializable{
         return alarms;
     }
 
-    public long getnID() {
+    public int getnID() {
         return nID;
     }
 
@@ -108,7 +129,7 @@ public class AlarmsAndSettings implements Serializable{
         this.alarms = alarms;
     }
 
-    public void setnID(long nID) {
+    public void setnID(int nID) {
         this.nID = nID;
     }
 }

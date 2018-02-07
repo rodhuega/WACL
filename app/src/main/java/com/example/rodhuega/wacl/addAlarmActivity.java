@@ -25,7 +25,7 @@ public class addAlarmActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_alarm);
-        alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+"/alarmsSettings22.alc";
+        alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+AlarmsAndSettings.NOMBREDELFICHERODECONF;
         //Cargar el TimePicker de seleccion de la alarma y cambiarle el estilo
         alarmPicker =  (TimePicker)findViewById(R.id.alarmPicker);
         alarmPicker.setIs24HourView(true);
@@ -53,7 +53,7 @@ public class addAlarmActivity extends AppCompatActivity {
             boolean [] repeatArray = repeatBoxToArray();
             AlarmsAndSettings myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
             Alarm newAlarm = new Alarm(myAlarms.getnID() ,alarmPicker.getHour(), alarmPicker.getMinute(), repeatArray);
-            myAlarms.getAlarms().add(newAlarm);
+            myAlarms.addAlarm(newAlarm);
             AlarmsAndSettings.saveAlarms(myAlarms,alarmsSavedFilePath);
             newAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext());
             Intent goToMain = new Intent(this.getApplicationContext(), MainActivity.class);

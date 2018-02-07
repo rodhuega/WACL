@@ -4,7 +4,14 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Calendar;
 
@@ -43,10 +50,10 @@ public class Alarm implements Serializable {
     /**
      * Int que representa una identificacion de la alarma
      */
-    private long id;
+    private int id;
 
     //Constructor para dias o siguiente hora
-    public Alarm(long id,int hour, int minute, boolean[] days) {
+    public Alarm(int id,int hour, int minute, boolean[] days) {
         this.id = id;
         this.enabled = true;
         this.hour =hour;
@@ -56,7 +63,7 @@ public class Alarm implements Serializable {
         this.dateToSound=null;
     }
     //Constructor para fecha
-    public Alarm(long id,int hour, int minute, Date dateToSound) {
+    public Alarm(int id,int hour, int minute, Date dateToSound) {
         this.id = id;
         this.enabled = true;
         this.hour=hour;
@@ -85,16 +92,36 @@ public class Alarm implements Serializable {
         AlarmManager alarmManager = am;
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
         goToEnable.putExtra("action",1);
-        goToEnable.putExtra("alarmObject", this);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,0,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
+        goToEnable.putExtra("alarmID", id);
+        Log.e("miID",id+"");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,(int)id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
     }
 
     public void disableAlarm(Context ctx) {
         Intent goToDisable = new Intent(ctx, AlarmOperations.class);
-        goToDisable.putExtra("action",1);
-        goToDisable.putExtra("alarmObject", this);
-        ctx.startActivity(goToDisable);
+        goToDisable.putExtra("action",2);
+        goToDisable.putExtra("alarmID", id);
+        ctx.sendBroadcast(goToDisable);
+    }
+
+    public void saveAlarm(String path) throws IOException {
+        File f = new File(path);
+        FileOutputStream f1 = new FileOutputStream(f);
+        ObjectOutputStream f2 = new ObjectOutputStream(f1);
+        f2.writeObject(this);
+        f1.close();
+        f2.close();
+    }
+
+    public static Alarm loadAlarm(String path) throws IOException, ClassNotFoundException {
+        File f = new File(path);
+        FileInputStream f1 = new FileInputStream(f);
+        ObjectInputStream f2 = new ObjectInputStream(f1);
+        Alarm resultado = (Alarm) f2.readObject();
+        f1.close();
+        f2.close();
+        return resultado;
     }
 
     //Gets
@@ -124,7 +151,7 @@ public class Alarm implements Serializable {
         return enabled;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
@@ -155,7 +182,7 @@ public class Alarm implements Serializable {
         this.minute = minute;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 }

@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.provider.Settings;
+import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * Created by pillo on 04/02/2018.
@@ -19,31 +22,15 @@ public class AlarmOperations extends BroadcastReceiver{
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        //Recuperar datos
         int action=intent.getExtras().getInt("action");
-        if(action==1) {
-            mediaSound = MediaPlayer.create(context, Settings.System.DEFAULT_RINGTONE_URI);
-            mediaSound.start();
-
-            Notification.Builder notification = new Notification.Builder(context);
-            notification.setAutoCancel(true);
-            notification.setSmallIcon(R.mipmap.ic_launcher);
-            notification.setTicker("Nueva Notificacion");
-            notification.setWhen(System.currentTimeMillis());
-            notification.setContentTitle("Titulo");
-            notification.setContentText("mi texto");
-            Intent goToPowerOff = new Intent(context, powerOffActivity.class);
-            //En prueba
-            Alarm alarm = (Alarm) intent.getExtras().getSerializable("alarmObject");
-            goToPowerOff.putExtra("alarmObject", alarm);
-            //
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, goToPowerOff, 0);
-            notification.setContentIntent(pendingIntent);
-            NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            nm.notify(5163213, notification.build());
-        }else if(action==2) {
-            mediaSound.stop();
-            mediaSound.reset();
-        }
+        int alarmID = intent.getExtras().getInt("alarmID");
+        Log.e("Seguimiento", ": action: " +action +", alarmID: "+ alarmID);
+        //Crear intent y servicio y enviar esos datos
+        Intent serviceIntent = new Intent(context,RingtonePlayingService.class);
+        serviceIntent.putExtra("action",action);
+        serviceIntent.putExtra("alarmID",alarmID);
+        context.startService(serviceIntent);
 
     }
 }
