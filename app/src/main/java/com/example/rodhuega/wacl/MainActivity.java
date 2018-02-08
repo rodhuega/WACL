@@ -119,15 +119,9 @@ public class MainActivity extends AppCompatActivity {
 
         //Hora en la que sonara la alarma, se añade a infoLayout
         TextView time = new TextView(this.getApplicationContext());
-        //Pasar la hora y los minutos a 2 digitos de longitud
-        String hourString =finalAlarm.getHour()+"";
-        if(hourString.length()==1) {
-            hourString="0"+hourString;
-        }
-        String minString =finalAlarm.getMinute()+"";
-        if(minString.length()==1) {
-            minString="0"+minString;
-        }
+        //Pasar la hora y los minutos a 2 digitos de longitud y añadirlo a la Activity
+        String hourString =twoDigits(finalAlarm.getHour())+"";
+        String minString =twoDigits(finalAlarm.getMinute())+"";
         time.setText(hourString+":"+minString);
         infoLayout.addView(time);
         //añadir dias que se repite o fecha, haria falta if/else
@@ -233,4 +227,24 @@ public class MainActivity extends AppCompatActivity {
         container.addView(letterDayTextView);
     }
 
+
+    /**
+     * Metodo que se asegura que cualquier int tenga 2 digitos a la hora de ser representado
+     * @param x, int
+     * @return resultado, String
+     */
+    public static String twoDigits(int x) {
+        String resultado =x+"";
+        if(resultado.length()==1) {
+            resultado="0"+resultado;
+        }
+        return resultado;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        alarmsLayout.removeAllViews();
+        drawAllAlarms();
+    }
 }

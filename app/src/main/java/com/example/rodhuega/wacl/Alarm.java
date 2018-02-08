@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.File;
@@ -57,23 +58,30 @@ public class Alarm implements Serializable {
      */
     private int postponeTime;
 
+    /**
+     * Uri que contiene la pista que se va a reproducir en la alarma.
+     */
+    private String RingtoneTrack;
+
     //Constructor para dias o siguiente hora
-    public Alarm(int id,int hour, int minute,int postponeTime, boolean[] days) {
+    public Alarm(int id,int hour, int minute,int postponeTime, String RingtoneTrack, boolean[] days) {
         this.id = id;
         this.enabled = true;
         this.hour =hour;
         this.minute=minute;
         this.postponeTime=postponeTime;
+        this.RingtoneTrack=RingtoneTrack;
         this.days=days;
         this.repeat = isRepeatEnabled();
         this.dateToSound=null;
     }
     //Constructor para fecha
-    public Alarm(int id,int hour, int minute, int postponeTime, Date dateToSound) {
+    public Alarm(int id,int hour, int minute, int postponeTime, Uri RingtoneTrack, Date dateToSound) {
         this.id = id;
         this.enabled = true;
         this.hour=hour;
         this.minute= minute;
+        this.postponeTime=postponeTime;
         this.postponeTime=postponeTime;
         this.dateToSound=dateToSound;
         this.repeat=false;
@@ -93,6 +101,7 @@ public class Alarm implements Serializable {
 
 
     public void enableAlarmSound(AlarmManager am, Context ctx) {
+        enabled=true;
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY,hour);
         calendar.set(Calendar.MINUTE,minute);
@@ -106,6 +115,7 @@ public class Alarm implements Serializable {
     }
 
     public void disableAlarm(Context ctx) {
+        enabled=false;//habria que mirar una condicion para ver si es del tipo repetir diversos dias
         Intent goToDisable = new Intent(ctx, AlarmOperations.class);
         goToDisable.putExtra("action",2);
         goToDisable.putExtra("alarmID", id);
@@ -166,6 +176,10 @@ public class Alarm implements Serializable {
         return postponeTime;
     }
 
+    public String getRingtoneTrack() {
+        return RingtoneTrack;
+    }
+
     //Sets
 
 
@@ -199,5 +213,9 @@ public class Alarm implements Serializable {
 
     public void setPostponeTime(int postponeTime) {
         this.postponeTime = postponeTime;
+    }
+
+    public void setRingtoneTrack(String ringtoneTrack) {
+        RingtoneTrack = ringtoneTrack;
     }
 }

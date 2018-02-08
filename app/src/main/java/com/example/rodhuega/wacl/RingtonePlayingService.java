@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -50,17 +51,17 @@ public class RingtonePlayingService extends Service{
 
         //que hacer dependiendo de debeDeSonar y el estado del Ringtone
         if(action==1) {//En caso de que tenga que sonar
-            //
-            media_song=MediaPlayer.create(this,Settings.System.DEFAULT_RINGTONE_URI);
+            //Parte que hace que suene la alarma
+            media_song=MediaPlayer.create(this, Uri.parse(alarm.getRingtoneTrack()));
             media_song.start();
-
+            //Notificacion de que esta sonando la alarma
             notification = new Notification.Builder(getApplicationContext());
             notification.setAutoCancel(true);
             notification.setSmallIcon(R.mipmap.ic_launcher);
             notification.setTicker("WACL Notification");
             notification.setWhen(System.currentTimeMillis());
             notification.setContentTitle(getResources().getString(R.string.app_name));
-            notification.setContentText(alarm.getHour()+":"+alarm.getMinute());
+            notification.setContentText(MainActivity.twoDigits(alarm.getHour())+":"+MainActivity.twoDigits(alarm.getMinute()));
             //botones de notificacion
             //Accion de apagar la alarma
             Intent powerOffButton = new Intent(this,RingtonePlayingService.class);
@@ -76,7 +77,7 @@ public class RingtonePlayingService extends Service{
             PendingIntent PostponeButtonPending = PendingIntent.getService(getApplicationContext(), alarmID, PostponeButton, PendingIntent.FLAG_UPDATE_CURRENT);
             Notification.Action actionPostpone =new Notification.Action(R.mipmap.ic_launcher,getResources().getString(R.string.postpone_text),PostponeButtonPending);
             notification.addAction(actionPostpone);
-            //
+            //Si se pulsa en la notificacion va a una activity en la que se pospone o apaga la alarma
             Intent goToPowerOff = new Intent(getApplicationContext(), powerOffActivity.class);
             goToPowerOff.putExtra("alarmID",alarmID);
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), alarmID, goToPowerOff, PendingIntent.FLAG_UPDATE_CURRENT);

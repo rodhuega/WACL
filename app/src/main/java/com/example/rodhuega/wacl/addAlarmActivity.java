@@ -2,6 +2,7 @@ package com.example.rodhuega.wacl;
 
 import android.app.AlarmManager;
 import android.content.Intent;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -52,7 +53,7 @@ public class addAlarmActivity extends AppCompatActivity {
             //Comrobar si se repite la alarma varios dias y que dias son.
             boolean [] repeatArray = repeatBoxToArray();
             AlarmsAndSettings myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
-            Alarm newAlarm = new Alarm(myAlarms.getnID() ,alarmPicker.getHour(), alarmPicker.getMinute(),1, repeatArray);
+            Alarm newAlarm = new Alarm(myAlarms.getnID() ,alarmPicker.getHour(), alarmPicker.getMinute(),1, Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
             myAlarms.addAlarm(newAlarm);
             AlarmsAndSettings.saveAlarms(myAlarms,alarmsSavedFilePath);
             newAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext());
