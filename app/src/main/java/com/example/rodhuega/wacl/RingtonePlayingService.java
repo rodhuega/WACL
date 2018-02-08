@@ -64,9 +64,9 @@ public class RingtonePlayingService extends Service{
             //botones de notificacion
             //Accion de apagar la alarma
             Intent powerOffButton = new Intent(this,RingtonePlayingService.class);
-            powerOffButton.putExtra("action",2);
+            powerOffButton.putExtra("action",3);
             powerOffButton.putExtra("alarmID",alarmID);
-            PendingIntent powerOffButtonPending = PendingIntent.getService(getApplicationContext(), alarmID, powerOffButton, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent powerOffButtonPending = PendingIntent.getService(getApplicationContext(), alarmID, powerOffButton, PendingIntent.FLAG_ONE_SHOT);
             Notification.Action actionPowerOff =new Notification.Action(R.mipmap.ic_launcher,getResources().getString(R.string.turnOff_text),powerOffButtonPending);
             notification.addAction(actionPowerOff);
             //Accion de posponer
