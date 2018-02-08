@@ -1,5 +1,6 @@
 package com.example.rodhuega.wacl;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,6 +11,7 @@ import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.io.IOException;
@@ -22,6 +24,8 @@ public class RingtonePlayingService extends Service{
 
     MediaPlayer media_song;
     boolean isRunning;
+    Notification.Builder notification;
+    NotificationManager nm;
 
     @Nullable
     @Override
@@ -50,22 +54,53 @@ public class RingtonePlayingService extends Service{
             media_song=MediaPlayer.create(this,Settings.System.DEFAULT_RINGTONE_URI);
             media_song.start();
 
-            Notification.Builder notification = new Notification.Builder(getApplicationContext());
+            notification = new Notification.Builder(getApplicationContext());
             notification.setAutoCancel(true);
             notification.setSmallIcon(R.mipmap.ic_launcher);
             notification.setTicker("WACL Notification");
             notification.setWhen(System.currentTimeMillis());
             notification.setContentTitle(getResources().getString(R.string.app_name));
             notification.setContentText(alarm.getHour()+":"+alarm.getMinute());
+            //botones de notificacion
+            //Accion de apagar la alarma
+            Intent powerOffButton = new Intent(this,RingtonePlayingService.class);
+            powerOffButton.putExtra("action",2);
+            powerOffButton.putExtra("alarmID",alarmID);
+            PendingIntent powerOffButtonPending = PendingIntent.getService(getApplicationContext(), alarmID, powerOffButton, PendingIntent.FLAG_UPDATE_CURRENT);
+            Notification.Action actionPowerOff =new Notification.Action(R.mipmap.ic_launcher,getResources().getString(R.string.turnOff_text),powerOffButtonPending);
+            notification.addAction(actionPowerOff);
+            //Accion de posponer
+            Intent PostponeButton = new Intent(this,RingtonePlayingService.class);
+            PostponeButton.putExtra("action",4);
+            PostponeButton.putExtra("alarmID",alarmID);
+            PendingIntent PostponeButtonPending = PendingIntent.getService(getApplicationContext(), alarmID, PostponeButton, PendingIntent.FLAG_UPDATE_CURRENT);
+            Notification.Action actionPostpone =new Notification.Action(R.mipmap.ic_launcher,getResources().getString(R.string.postpone_text),PostponeButtonPending);
+            notification.addAction(actionPostpone);
+            //
             Intent goToPowerOff = new Intent(getApplicationContext(), powerOffActivity.class);
             goToPowerOff.putExtra("alarmID",alarmID);
-            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, goToPowerOff, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), alarmID, goToPowerOff, PendingIntent.FLAG_UPDATE_CURRENT);
             notification.setContentIntent(pendingIntent);
-            NotificationManager nm = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            nm = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
             nm.notify(5163213, notification.build());
-        }else if(action==2) {//Parar la alarma
+        }else if(action==2) {//Parar la alarma desde stio activity
+            Log.e("Seguimiento","Entre id:" + alarmID);
             media_song.stop();
             media_song.reset();
+        }else if(action==3) {//Parar alarma desde notificacion
+            media_song.stop();
+            media_song.reset();
+            nm.cancelAll();
+        }else if(action == 4) {//posponer
+            media_song.stop();
+            media_song.reset();
+            nm.cancelAll();
+            //Desactivo la alarma,
+            alarm.disableAlarm(this);
+            //cambiamos el valor de los minutos por el valor de posponer configurado en la alarma
+            alarm.setMinute(alarm.getMinute()+alarm.getPostponeTime());
+            //Activamos la alarma de nuevo
+            alarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext());
         }
 
         return START_NOT_STICKY;

@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Fichero donde las alarmas son guardadas
      */
-    public String alarmsSavedFilePath;
+    private String alarmsSavedFilePath;
 
     /**
      * Objeto donde se guarda la configuracion de las alarmas y las alarmas

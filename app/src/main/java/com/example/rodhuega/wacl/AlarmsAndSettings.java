@@ -14,8 +14,7 @@ import java.util.ArrayList;
  */
 
 public class AlarmsAndSettings implements Serializable{
-    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings111.alc";
-    public static final String CONSTTEMPORALALARM = "/temporalAlarm111.alm";
+    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings112.alc";
     //Muchos aspectos por cubrir
     private ArrayList<Alarm> alarms;
 

@@ -52,22 +52,29 @@ public class Alarm implements Serializable {
      */
     private int id;
 
+    /**
+     * Int que representa los minutos que sera pospuesta la alarma
+     */
+    private int postponeTime;
+
     //Constructor para dias o siguiente hora
-    public Alarm(int id,int hour, int minute, boolean[] days) {
+    public Alarm(int id,int hour, int minute,int postponeTime, boolean[] days) {
         this.id = id;
         this.enabled = true;
         this.hour =hour;
         this.minute=minute;
+        this.postponeTime=postponeTime;
         this.days=days;
         this.repeat = isRepeatEnabled();
         this.dateToSound=null;
     }
     //Constructor para fecha
-    public Alarm(int id,int hour, int minute, Date dateToSound) {
+    public Alarm(int id,int hour, int minute, int postponeTime, Date dateToSound) {
         this.id = id;
         this.enabled = true;
         this.hour=hour;
         this.minute= minute;
+        this.postponeTime=postponeTime;
         this.dateToSound=dateToSound;
         this.repeat=false;
         //quiza haga falta hacer new y pasar el array de days a false.
@@ -155,6 +162,10 @@ public class Alarm implements Serializable {
         return id;
     }
 
+    public int getPostponeTime() {
+        return postponeTime;
+    }
+
     //Sets
 
 
@@ -184,5 +195,9 @@ public class Alarm implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setPostponeTime(int postponeTime) {
+        this.postponeTime = postponeTime;
     }
 }

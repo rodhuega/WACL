@@ -52,7 +52,7 @@ public class addAlarmActivity extends AppCompatActivity {
             //Comrobar si se repite la alarma varios dias y que dias son.
             boolean [] repeatArray = repeatBoxToArray();
             AlarmsAndSettings myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
-            Alarm newAlarm = new Alarm(myAlarms.getnID() ,alarmPicker.getHour(), alarmPicker.getMinute(), repeatArray);
+            Alarm newAlarm = new Alarm(myAlarms.getnID() ,alarmPicker.getHour(), alarmPicker.getMinute(),1, repeatArray);
             myAlarms.addAlarm(newAlarm);
             AlarmsAndSettings.saveAlarms(myAlarms,alarmsSavedFilePath);
             newAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext());

@@ -15,4 +15,5 @@
     <string name="edit_text">Editar</string>
     <string name="delete_text">Eliminar</string>
     <string name="turnOff_text">Apagar</string>
+    <string name="postpone_text">Posponer</string>
 </resources>
