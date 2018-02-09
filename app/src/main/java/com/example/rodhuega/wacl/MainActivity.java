@@ -1,5 +1,6 @@
 package com.example.rodhuega.wacl;
 
+import android.app.AlarmManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -49,28 +50,23 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+AlarmsAndSettings.NOMBREDELFICHERODECONF;
-        try {
-            //Boton que crea una nueva alarma
-            context = this;
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    try {
-                        AlarmsAndSettings.saveAlarms(confAndAlarms,alarmsSavedFilePath);
-                        Intent goToAddAlarm = new Intent(context, addAlarmActivity.class);
-                        startActivity(goToAddAlarm);
-                    }catch (IOException e) {
-                        Log.e("ER","Error mainActivity"+e.getMessage());
-                    }
-                }
-            });
-            //Cargar todas las alarmas guardadas a traves de un fichero
-            alarmsLayout = (LinearLayout) findViewById(R.id.alarmsLayout);
-            confAndAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
-            drawAllAlarms();
-        }catch (ClassNotFoundException | IOException ee) {
-            Log.e("ER","Error mainActivity" + ee.getMessage());
-        }
+
+        //Boton que crea una nueva alarma
+        context = this;
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveAlarms();
+                Intent goToAddAlarm = new Intent(context, addAlarmActivity.class);
+                startActivity(goToAddAlarm);
+
+            }
+        });
+        //Cargar todas las alarmas guardadas a traves de un fichero
+        alarmsLayout = (LinearLayout) findViewById(R.id.alarmsLayout);
+        loadAlarms();
+        drawAllAlarms();
+
 
     }
 
@@ -165,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
         //toggleButton de si esta activa o no.
         final Switch activeSwitch = new Switch(this.getApplicationContext());
         activeSwitch.setChecked(finalAlarm.getEnabled());
-
+        final Context finalctx = this;
         activeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -173,9 +169,12 @@ public class MainActivity extends AppCompatActivity {
                 if(finalAlarm.getEnabled()) { //significa que se va a desactivar
                     finalAlarm.setEnabled(false);
                     //ir a metodo que apaga la alarma
+                    saveAlarms();
                 }else {//signifca que se va a activar
                     finalAlarm.setEnabled(true);
+                    finalAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),finalctx);
                     //ir a metodo que activa que suene la alarm
+                    saveAlarms();
                 }
                 activeSwitch.setChecked(finalAlarm.getEnabled());
             }
@@ -199,18 +198,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.e("WIP", "pulsado delete de alarma");
                 ////////////faltaria hacer que no suene
-                try {
-                    //borrar Alarma del arrayList
-                    confAndAlarms.deleteAlarm(finalAlarm.getId());
-                    ///Reguardar la informacion del fichero
-                    AlarmsAndSettings.saveAlarms(confAndAlarms, alarmsSavedFilePath);
-                    //borrar y repintar la GUI
-                    alarmsLayout.removeAllViews();
-                    drawAllAlarms();
-                }catch (IOException ioe) {
-                    Log.e("ERR", "Error al borrar, tema de ficheros");
-                }
-
+                //borrar Alarma del arrayList
+                confAndAlarms.deleteAlarm(finalAlarm.getId());
+                ///Reguardar la informacion del fichero
+                saveAlarms();
+                //borrar y repintar la GUI
+                alarmsLayout.removeAllViews();
+                drawAllAlarms();
             }
         });
         ButtonsLayout.addView(deleteButton);
@@ -244,7 +238,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        loadAlarms();
         alarmsLayout.removeAllViews();
         drawAllAlarms();
+    }
+
+    private void loadAlarms() {
+        try {
+            confAndAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
+        }catch (IOException | ClassNotFoundException ioe) {
+            Log.e("ERRRRR", ioe.getMessage());
+        }
+    }
+
+    private void saveAlarms() {
+        try {
+            AlarmsAndSettings.saveAlarms(confAndAlarms,alarmsSavedFilePath);
+        }catch (IOException e) {
+            Log.e("ER","Error mainActivity"+e.getMessage());
+        }
     }
 }

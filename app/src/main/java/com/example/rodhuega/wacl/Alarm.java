@@ -101,7 +101,6 @@ public class Alarm implements Serializable {
 
 
     public void enableAlarmSound(AlarmManager am, Context ctx) {
-        enabled=true;
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY,hour);
         calendar.set(Calendar.MINUTE,minute);
@@ -115,7 +114,6 @@ public class Alarm implements Serializable {
     }
 
     public void disableAlarm(Context ctx) {
-        enabled=false;//habria que mirar una condicion para ver si es del tipo repetir diversos dias
         Intent goToDisable = new Intent(ctx, AlarmOperations.class);
         goToDisable.putExtra("action",2);
         goToDisable.putExtra("alarmID", id);

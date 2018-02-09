@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 
 public class AlarmsAndSettings implements Serializable{
-    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings115.alc";
+    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings116.alc";
     //Muchos aspectos por cubrir
     private ArrayList<Alarm> alarms;
 
@@ -62,7 +62,7 @@ public class AlarmsAndSettings implements Serializable{
      * @param id, long
      * @return resultado, Alarm
      */
-    public Alarm searchAlarmID(long id) {
+    public Alarm searchAlarmID(int id) {
         boolean encontrado = false;
         Alarm resultado = null;
         int i = 0;
@@ -105,6 +105,16 @@ public class AlarmsAndSettings implements Serializable{
         f2.writeObject(myAl);
         f1.close();
         f2.close();
+    }
+
+    public void replaceAlarm(int id, Alarm al) {
+        boolean encontrado=false;
+        for (int i = 0; i < alarms.size() && !encontrado; i++) {
+            if(alarms.get(i).getId()==id) {
+                encontrado=true;
+                alarms.set(i,al);
+            }
+        }
     }
 
     //gets sets
