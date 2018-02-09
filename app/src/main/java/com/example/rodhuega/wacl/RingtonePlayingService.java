@@ -10,9 +10,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.io.IOException;
@@ -101,7 +99,7 @@ public class RingtonePlayingService extends Service{
                 media_song.reset();
                 nm.cancelAll();
                 //Desactivo la alarma,
-                alarm.disableAlarm(this);
+                alarm.turnOFFAlarmSound(this);
                 //cambiamos el valor de los minutos por el valor de posponer configurado en la alarma
                 alarm.setMinute(alarm.getMinute() + alarm.getPostponeTime());
                 //Activamos la alarma de nuevo

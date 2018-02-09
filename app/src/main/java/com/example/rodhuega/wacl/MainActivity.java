@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 if(finalAlarm.getEnabled()) { //significa que se va a desactivar
                     finalAlarm.setEnabled(false);
                     //ir a metodo que apaga la alarma
+                    finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE),finalctx);
                     saveAlarms();
                 }else {//signifca que se va a activar
                     finalAlarm.setEnabled(true);
@@ -198,7 +199,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.e("WIP", "pulsado delete de alarma");
                 ////////////faltaria hacer que no suene
-                //borrar Alarma del arrayList
+                //desactivar borrar Alarma del arrayList
+                finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE), finalctx);
                 confAndAlarms.deleteAlarm(finalAlarm.getId());
                 ///Reguardar la informacion del fichero
                 saveAlarms();

@@ -28,14 +28,14 @@ public class powerOffActivity extends AppCompatActivity {
 
     public void turnOffButtonOnClick(View view) {
         Log.e("WIP", "apagar alarma");
-        RunningAlarm.disableAlarm(this.getApplicationContext());
+        RunningAlarm.turnOFFAlarmSound(this.getApplicationContext());
         finish();
     }
 
     public void postponeButtonOnClick(View view) {
         Log.e("WIP", "Posponer alarma");
         //Desactivo la alarma,
-        RunningAlarm.disableAlarm(this);
+        RunningAlarm.turnOFFAlarmSound(this);
         //cambiamos el valor de los minutos por el valor de posponer configurado en la alarma
         RunningAlarm.setMinute(RunningAlarm.getMinute()+RunningAlarm.getPostponeTime());
         //Activamos la alarma de nuevo

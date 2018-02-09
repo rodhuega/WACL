@@ -100,11 +100,10 @@ public class Alarm implements Serializable {
     }
 
 
-    public void enableAlarmSound(AlarmManager am, Context ctx) {
+    public void enableAlarmSound(AlarmManager alarmManager, Context ctx) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY,hour);
         calendar.set(Calendar.MINUTE,minute);
-        AlarmManager alarmManager = am;
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
         goToEnable.putExtra("action",1);
         goToEnable.putExtra("alarmID", id);
@@ -113,11 +112,17 @@ public class Alarm implements Serializable {
         alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
     }
 
-    public void disableAlarm(Context ctx) {
+    public void turnOFFAlarmSound(Context ctx) {
         Intent goToDisable = new Intent(ctx, AlarmOperations.class);
         goToDisable.putExtra("action",2);
         goToDisable.putExtra("alarmID", id);
         ctx.sendBroadcast(goToDisable);
+    }
+
+    public void cancelAlarm(AlarmManager alarmManager, Context ctx) {
+        Intent goToEnable = new Intent(ctx, AlarmOperations.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,(int)id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
     }
 
     public void saveAlarm(String path) throws IOException {
