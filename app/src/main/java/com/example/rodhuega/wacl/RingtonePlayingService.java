@@ -11,6 +11,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.AndroidRuntimeException;
 import android.util.Log;
 
 import java.io.IOException;
@@ -103,6 +104,8 @@ public class RingtonePlayingService extends Service{
                 //cambiamos el valor de los minutos por el valor de posponer configurado en la alarma
                 alarm.setMinute(alarm.getMinute() + alarm.getPostponeTime());
                 //Activamos la alarma de nuevo
+                alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext());
+            }else if(action == 5) {//si es alarma de varios dias a la semana, renueva la alarma para la siguiente alarma
                 alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext());
             }
         }catch (IOException |ClassNotFoundException e) {

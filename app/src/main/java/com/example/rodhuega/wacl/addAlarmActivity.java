@@ -71,7 +71,7 @@ public class addAlarmActivity extends AppCompatActivity {
         //Caso en el que no se usa una fecha.
         try {
             //Comrobar si se repite la alarma varios dias y que dias son.
-            boolean [] repeatArray = repeatBoxToArray();
+            int [] repeatArray = repeatBoxToArray();
             Alarm newAlarm;
             if(option==1) {
                 newAlarm = new Alarm(myAlarms.getnID(), alarmPicker.getHour(), alarmPicker.getMinute(), 1, Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
@@ -89,26 +89,26 @@ public class addAlarmActivity extends AppCompatActivity {
         }
     }
 
-    public boolean [] repeatBoxToArray() {
-        boolean[] resultado = new boolean[7];
-        resultado[0]= ((CheckBox) findViewById(R.id.MBox)).isChecked();
-        resultado[1]= ((CheckBox) findViewById(R.id.TBox)).isChecked();
-        resultado[2]= ((CheckBox) findViewById(R.id.WBox)).isChecked();
-        resultado[3]= ((CheckBox) findViewById(R.id.RBox)).isChecked();
-        resultado[4]= ((CheckBox) findViewById(R.id.FBox)).isChecked();
-        resultado[5]= ((CheckBox) findViewById(R.id.SBox)).isChecked();
-        resultado[6]= ((CheckBox) findViewById(R.id.UBox)).isChecked();
+    public int [] repeatBoxToArray() {
+        int[] resultado = new int[7];
+        resultado[0]= (((CheckBox) findViewById(R.id.MBox)).isChecked()) ? -1 : 0;
+        resultado[1]= (((CheckBox) findViewById(R.id.TBox)).isChecked()) ? -1 : 0;
+        resultado[2]= (((CheckBox) findViewById(R.id.WBox)).isChecked()) ? -1 : 0;
+        resultado[3]= (((CheckBox) findViewById(R.id.RBox)).isChecked()) ? -1 : 0;
+        resultado[4]= (((CheckBox) findViewById(R.id.FBox)).isChecked()) ? -1 : 0;
+        resultado[5]= (((CheckBox) findViewById(R.id.SBox)).isChecked()) ? -1 : 0;
+        resultado[6]= (((CheckBox) findViewById(R.id.UBox)).isChecked()) ? -1 : 0;
         return resultado;
     }
 
     public void ArrayToRepeatBox() {
-        ((CheckBox) findViewById(R.id.MBox)).setChecked(editAlarm.getDays()[0]);
-        ((CheckBox) findViewById(R.id.TBox)).setChecked(editAlarm.getDays()[1]);
-        ((CheckBox) findViewById(R.id.WBox)).setChecked(editAlarm.getDays()[2]);
-        ((CheckBox) findViewById(R.id.RBox)).setChecked(editAlarm.getDays()[3]);
-        ((CheckBox) findViewById(R.id.FBox)).setChecked(editAlarm.getDays()[4]);
-        ((CheckBox) findViewById(R.id.SBox)).setChecked(editAlarm.getDays()[5]);
-        ((CheckBox) findViewById(R.id.UBox)).setChecked(editAlarm.getDays()[6]);
+        ((CheckBox) findViewById(R.id.MBox)).setChecked((editAlarm.getDays()[0] < 0));
+        ((CheckBox) findViewById(R.id.TBox)).setChecked((editAlarm.getDays()[1] < 0));
+        ((CheckBox) findViewById(R.id.WBox)).setChecked((editAlarm.getDays()[2] < 0));
+        ((CheckBox) findViewById(R.id.RBox)).setChecked((editAlarm.getDays()[3] < 0));
+        ((CheckBox) findViewById(R.id.FBox)).setChecked((editAlarm.getDays()[4] < 0));
+        ((CheckBox) findViewById(R.id.SBox)).setChecked((editAlarm.getDays()[5] < 0));
+        ((CheckBox) findViewById(R.id.UBox)).setChecked((editAlarm.getDays()[6] < 0));
     }
 
 }

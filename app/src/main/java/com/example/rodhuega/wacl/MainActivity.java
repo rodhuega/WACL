@@ -128,25 +128,25 @@ public class MainActivity extends AppCompatActivity {
             daysLayout.setOrientation(LinearLayout.HORIZONTAL);
 
             //Comprobacion de los distintos dias
-            if(finalAlarm.getDays()[0]) {
+            if(finalAlarm.getDays()[0]<0) {
                 drawDay(getResources().getString(R.string.m_text),daysLayout);
             }
-            if(finalAlarm.getDays()[1]) {
+            if(finalAlarm.getDays()[1]<0) {
                 drawDay(getResources().getString(R.string.t_text),daysLayout);
             }
-            if(finalAlarm.getDays()[2]) {
+            if(finalAlarm.getDays()[2]<0) {
                 drawDay(getResources().getString(R.string.w_text),daysLayout);
             }
-            if(finalAlarm.getDays()[3]) {
+            if(finalAlarm.getDays()[3]<0) {
                 drawDay(getResources().getString(R.string.r_text),daysLayout);
             }
-            if(finalAlarm.getDays()[4]) {
+            if(finalAlarm.getDays()[4]<0) {
                 drawDay(getResources().getString(R.string.f_text),daysLayout);
             }
-            if(finalAlarm.getDays()[5]) {
+            if(finalAlarm.getDays()[5]<0) {
                 drawDay(getResources().getString(R.string.s_text),daysLayout);
             }
-            if(finalAlarm.getDays()[6]) {
+            if(finalAlarm.getDays()[6]<0) {
                 drawDay(getResources().getString(R.string.u_text),daysLayout);
             }
             //Añadir esa informacion al  container Grande de la alarma

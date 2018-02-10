@@ -40,9 +40,9 @@ public class Alarm implements Serializable {
      */
     private boolean repeat;
     /**
-     * Array boolean de dias que sera de longitud 7 que indica a true si ese dia tiene que despertar
+     * Array int de dias que sera de longitud 7 que contiene un 0 si esta desactivado ese dia o un numero negativo si esta habilitado
      */
-    private boolean[] days;
+    private int[] days;
     /**
      * En caso de que se quiera poner para una fecha determinada en vez de para dias de la semana
      */
@@ -64,7 +64,7 @@ public class Alarm implements Serializable {
     private String RingtoneTrack;
 
     //Constructor para dias o siguiente hora
-    public Alarm(int id,int hour, int minute,int postponeTime, String RingtoneTrack, boolean[] days) {
+    public Alarm(int id,int hour, int minute,int postponeTime, String RingtoneTrack, int[] days) {
         this.id = id;
         this.enabled = true;
         this.hour =hour;
@@ -91,9 +91,12 @@ public class Alarm implements Serializable {
 
     public boolean isRepeatEnabled() {
         boolean resultado = false;
-        for(int i =0; i< days.length && !resultado; i++) {
-            if(days[i]) {
+        for(int i =0; i< days.length; i++) {
+            if(days[i]<0) {
                 resultado=true;
+                //Construimos un codigo que sera el requestCode que se le pasara al PendingIntent de ese dia. Luego lo guardamos en el esa posicion del array
+                //Formato del codigo CONST,ID,PosicionDelDia, la posicion del dia va 0 si es lunes a 6 si es domingo
+                days[i] = Integer.parseInt(AlarmsAndSettings.DAYSALARMCONST+""+id+""+i);
             }
         }
         return resultado;
@@ -106,44 +109,69 @@ public class Alarm implements Serializable {
         return false;
     }
 
-    public int queDiaPonerAlarma(int diaActual, int year) {
-        if( esBisiesto(year)|| diaActual==366) { //año no bisiesto o año bisiesto y estamos en el dia 366
-            return  1;
-        }else if(diaActual==365 && esBisiesto(year)){ //bisiesto y estamos en el dia 365
-            return 366;
-        }else {//dias habituales
-            return diaActual+1;
+    public int[] cuandoPonerLaAlarma(int horaActual, int minutoActual,int diaActual, int yearActual,int targetDay) {
+        //Array que contiene que dia poner la alarma, posicion 0 del array dia, 1 año
+        int[] resultado = new int[4];
+        if(targetDay==-1) {//caso en el que se pone para el dia inmediatamente siguiente, es decir, no es alarma que se repite cada semana
+            if (horaActual>hour || (horaActual==hour && minutoActual>minute)) {//caso en el que se pone para el dia inmediatamente siguiente
+                if( esBisiesto(yearActual)|| diaActual==366) { //año no bisiesto o año bisiesto y estamos en el dia 366
+                    resultado[0]=1;
+                }else if(diaActual==365 && esBisiesto(yearActual)){ //bisiesto y estamos en el dia 365
+                    resultado[0]= 366;
+                }else {//dias habituales
+                    resultado[0]=diaActual+1;
+                }
+            }else {
+                resultado[0]=diaActual;
+            }
+        }else {//caso en que la alarma se repite todas las semanas
+
         }
+        if(resultado[0]<diaActual) {//si el dia se ha vuelto mas pequeño, significa que hemos cambiado de año y hay que incrementarlo
+            resultado[1]=yearActual+1;
+        }
+
+        return resultado;
     }
 
     public void enableAlarmSound(AlarmManager alarmManager, Context ctx) {
-        if(dateToSound!=null) {//Si es una fecha
+        Calendar calendar = Calendar.getInstance();
+        if(dateToSound!=null) {//Si es una fecha,
+            // hace falta verificar que se ha metido una fecha futuroa y tal, si no se cumple quiza tirar un throw
 
         }else if(!repeat && dateToSound==null) {//en caso de que solo se ponga para un dia(fecha mas cercana)
-            Calendar calendar = Calendar.getInstance();
             //Ver si se pone para hoy o para mañana
             int horaActual=calendar.get(Calendar.HOUR_OF_DAY);
             int minutoActual=calendar.get(Calendar.MINUTE);
-            if(horaActual>hour || (horaActual==hour && minutoActual>minute)) {//Se pone para el dia siguiente, si no entra en el if, se pone automaticamente para hoy.
-                int yearActual= calendar.get(Calendar.YEAR);
-                int diaActual= calendar.get(Calendar.DAY_OF_YEAR);
-                int diaAPoner=queDiaPonerAlarma(diaActual,yearActual);
-                calendar.set(Calendar.DAY_OF_YEAR,diaAPoner);
-            }
-            calendar.set(Calendar.HOUR_OF_DAY,hour);
-            calendar.set(Calendar.MINUTE,minute);
-            Intent goToEnable = new Intent(ctx, AlarmOperations.class);
-            goToEnable.putExtra("action",1);
-            goToEnable.putExtra("alarmID", id);
-            Log.e("miID",id+"");
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,(int)id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
-            alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
+            int diaActual= calendar.get(Calendar.DAY_OF_YEAR);
+            int yearActual= calendar.get(Calendar.YEAR);
+            int[] cuandoPoner=cuandoPonerLaAlarma(horaActual,minutoActual,diaActual,yearActual,-1);
+            enableAlarmaOneTime(id,alarmManager,ctx,calendar,cuandoPoner[0],cuandoPoner[1],1);
+
         }else {//en el caso de que se use alarma para diferentes dias de la semana
-
-            //poner la alarma para esos dias con multiplo X
-
+            //poner la alarma para esos dias con codigo que esta dentro del array Days
+            for (int day:days) {
+                if(day<0) {//si ese dia esta habilitado, se pone la alarma para ese dia.
+                    //WIP////////////////////////////////////
+                    cuandoPonerLaAlarma();
+                    enableAlarmaOneTime();
+                }
+            }
             //pending intent para renovar la alarma casa semana, con la id de la alarma
         }
+    }
+
+    public void enableAlarmaOneTime(int code, AlarmManager alarmManager,Context ctx, Calendar calendar, int diaAPoner, int yearActual, int action) {
+        calendar.set(Calendar.YEAR,yearActual);
+        calendar.set(Calendar.DAY_OF_YEAR,diaAPoner);
+        calendar.set(Calendar.HOUR_OF_DAY,hour);
+        calendar.set(Calendar.MINUTE,minute);
+        Intent goToEnable = new Intent(ctx, AlarmOperations.class);
+        goToEnable.putExtra("action",action);
+        goToEnable.putExtra("alarmID", id);
+        Log.e("miID",id+"");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,code,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
     }
 
     public void turnOFFAlarmSound(Context ctx) {//ver casos
@@ -155,7 +183,7 @@ public class Alarm implements Serializable {
 
     public void cancelAlarm(AlarmManager alarmManager, Context ctx) {//ver casos
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,(int)id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
     }
 
@@ -181,7 +209,7 @@ public class Alarm implements Serializable {
     //Gets
 
 
-    public boolean[] getDays() {
+    public int[] getDays() {
         return days;
     }
 
@@ -220,7 +248,7 @@ public class Alarm implements Serializable {
     //Sets
 
 
-    public void setDays(boolean[] days) {
+    public void setDays(int[] days) {
         this.days = days;
     }
 
