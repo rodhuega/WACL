@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 saveAlarms();
                 Intent goToAddAlarm = new Intent(context, addAlarmActivity.class);
+                goToAddAlarm.putExtra("optionAddAlarm",1);
                 startActivity(goToAddAlarm);
 
             }
@@ -188,6 +189,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.e("WIP", "pulsado edit de alarma");
+                finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE), finalctx);
+                try {
+                    finalAlarm.saveAlarm(finalctx.getApplicationContext().getFilesDir().getPath().toString() + AlarmsAndSettings.TEMPORALALARMFILE);
+                }catch (IOException e) {
+                    Log.e("Error:", "guardar alarma temporal error");
+                }
+                Intent goToEdit = new Intent(finalctx,addAlarmActivity.class);
+                goToEdit.putExtra("optionAddAlarm",2);
+                startActivity(goToEdit);
+                //Pasar a misma activity que añadir, donde se repitaran los datos, se guardara y se modificara.
+
             }
         });
         ButtonsLayout.addView(editButton);

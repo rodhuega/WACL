@@ -20,16 +20,36 @@ public class addAlarmActivity extends AppCompatActivity {
      */
     public String alarmsSavedFilePath;
 
+    private int option;
+
+    private Alarm editAlarm;
+
     private TimePicker alarmPicker;
+
+    private AlarmsAndSettings myAlarms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_alarm);
+        option=this.getIntent().getExtras().getInt("optionAddAlarm");
         alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+AlarmsAndSettings.NOMBREDELFICHERODECONF;
         //Cargar el TimePicker de seleccion de la alarma y cambiarle el estilo
         alarmPicker =  (TimePicker)findViewById(R.id.alarmPicker);
         alarmPicker.setIs24HourView(true);
+        try {
+            myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
+            if (option == 2) {
+                Log.e("WIP", "Desarrollemos");
+                //Cargamos la alarma a editar.
+                editAlarm = Alarm.loadAlarm(getApplicationContext().getFilesDir().getPath().toString() + AlarmsAndSettings.TEMPORALALARMFILE);
+                alarmPicker.setHour(editAlarm.getHour());
+                alarmPicker.setMinute(editAlarm.getMinute());
+                ArrayToRepeatBox();
+            }
+        }catch (IOException | ClassNotFoundException ioe) {
+            Log.e("Error:", "error al cargar alarma");
+        }
     }
 
     /**
@@ -52,17 +72,20 @@ public class addAlarmActivity extends AppCompatActivity {
         try {
             //Comrobar si se repite la alarma varios dias y que dias son.
             boolean [] repeatArray = repeatBoxToArray();
-            AlarmsAndSettings myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
-            Alarm newAlarm = new Alarm(myAlarms.getnID() ,alarmPicker.getHour(), alarmPicker.getMinute(),1, Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
-            myAlarms.addAlarm(newAlarm);
+            Alarm newAlarm;
+            if(option==1) {
+                newAlarm = new Alarm(myAlarms.getnID(), alarmPicker.getHour(), alarmPicker.getMinute(), 1, Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
+                myAlarms.addAlarm(newAlarm);
+            }else {
+                newAlarm = new Alarm(editAlarm.getId(), alarmPicker.getHour(), alarmPicker.getMinute(), 1, Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
+                myAlarms.replaceAlarm(editAlarm.getId(),newAlarm);
+            }
             AlarmsAndSettings.saveAlarms(myAlarms,alarmsSavedFilePath);
             newAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext());
             Intent goToMain = new Intent(this.getApplicationContext(), MainActivity.class);
             startActivity(goToMain);
         }catch (IOException ioe) {
             Log.e("ER","Fallo al guardar" + ioe.getMessage());
-        }catch (ClassNotFoundException clfe) {
-            Log.e("ER", "Fallo al cargar");
         }
     }
 
@@ -76,6 +99,16 @@ public class addAlarmActivity extends AppCompatActivity {
         resultado[5]= ((CheckBox) findViewById(R.id.SBox)).isChecked();
         resultado[6]= ((CheckBox) findViewById(R.id.UBox)).isChecked();
         return resultado;
+    }
+
+    public void ArrayToRepeatBox() {
+        ((CheckBox) findViewById(R.id.MBox)).setChecked(editAlarm.getDays()[0]);
+        ((CheckBox) findViewById(R.id.TBox)).setChecked(editAlarm.getDays()[1]);
+        ((CheckBox) findViewById(R.id.WBox)).setChecked(editAlarm.getDays()[2]);
+        ((CheckBox) findViewById(R.id.RBox)).setChecked(editAlarm.getDays()[3]);
+        ((CheckBox) findViewById(R.id.FBox)).setChecked(editAlarm.getDays()[4]);
+        ((CheckBox) findViewById(R.id.SBox)).setChecked(editAlarm.getDays()[5]);
+        ((CheckBox) findViewById(R.id.UBox)).setChecked(editAlarm.getDays()[6]);
     }
 
 }
