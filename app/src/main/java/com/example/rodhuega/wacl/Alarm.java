@@ -99,17 +99,48 @@ public class Alarm implements Serializable {
         return resultado;
     }
 
+    public boolean esBisiesto(int year) {
+        if(((year%4==0) && (year%100!=0)) || (year%400==0)) {
+            return true;
+        }
+        return false;
+    }
+
+    public int queDiaPonerAlarma(int diaActual, int year) {
+        if( esBisiesto(year)|| diaActual==366) { //año no bisiesto o año bisiesto y estamos en el dia 366
+            return  1;
+        }else if(diaActual==365 && esBisiesto(year)){ //bisiesto y estamos en el dia 365
+            return 366;
+        }else {//dias habituales
+            return diaActual+1;
+        }
+    }
 
     public void enableAlarmSound(AlarmManager alarmManager, Context ctx) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,hour);
-        calendar.set(Calendar.MINUTE,minute);
-        Intent goToEnable = new Intent(ctx, AlarmOperations.class);
-        goToEnable.putExtra("action",1);
-        goToEnable.putExtra("alarmID", id);
-        Log.e("miID",id+"");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,(int)id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
+        if(dateToSound!=null) {//Si es una fecha
+
+        }else if(!repeat && dateToSound==null) {//en caso de que solo se ponga para un dia(fecha mas cercana)
+            Calendar calendar = Calendar.getInstance();
+            //Ver si se pone para hoy o para mañana
+            int horaActual=calendar.get(Calendar.HOUR_OF_DAY);
+            int minutoActual=calendar.get(Calendar.MINUTE);
+            if(horaActual>hour || (horaActual==hour && minutoActual>minute)) {//Se pone para el dia siguiente, si no entra en el if, se pone automaticamente para hoy.
+                int yearActual= calendar.get(Calendar.YEAR);
+                int diaActual= calendar.get(Calendar.DAY_OF_YEAR);
+                int diaAPoner=queDiaPonerAlarma(diaActual,yearActual);
+                calendar.set(Calendar.DAY_OF_YEAR,diaAPoner);
+            }
+            calendar.set(Calendar.HOUR_OF_DAY,hour);
+            calendar.set(Calendar.MINUTE,minute);
+            Intent goToEnable = new Intent(ctx, AlarmOperations.class);
+            goToEnable.putExtra("action",1);
+            goToEnable.putExtra("alarmID", id);
+            Log.e("miID",id+"");
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,(int)id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
+            alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
+        }else {
+
+        }
     }
 
     public void turnOFFAlarmSound(Context ctx) {
