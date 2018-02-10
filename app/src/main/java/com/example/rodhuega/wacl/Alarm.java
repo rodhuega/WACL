@@ -138,19 +138,22 @@ public class Alarm implements Serializable {
             Log.e("miID",id+"");
             PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,(int)id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
             alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
-        }else {
+        }else {//en el caso de que se use alarma para diferentes dias de la semana
 
+            //poner la alarma para esos dias con multiplo X
+
+            //pending intent para renovar la alarma casa semana, con la id de la alarma
         }
     }
 
-    public void turnOFFAlarmSound(Context ctx) {
+    public void turnOFFAlarmSound(Context ctx) {//ver casos
         Intent goToDisable = new Intent(ctx, AlarmOperations.class);
         goToDisable.putExtra("action",2);
         goToDisable.putExtra("alarmID", id);
         ctx.sendBroadcast(goToDisable);
     }
 
-    public void cancelAlarm(AlarmManager alarmManager, Context ctx) {
+    public void cancelAlarm(AlarmManager alarmManager, Context ctx) {//ver casos
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,(int)id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
