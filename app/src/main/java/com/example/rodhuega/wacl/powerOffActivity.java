@@ -36,8 +36,7 @@ public class powerOffActivity extends AppCompatActivity {
         Log.e("WIP", "Posponer alarma");
         //Desactivo la alarma,
         RunningAlarm.turnOFFAlarmSound(this);
-        //cambiamos el valor de los minutos por el valor de posponer configurado en la alarma
-        RunningAlarm.setMinute(RunningAlarm.getMinute()+RunningAlarm.getPostponeTime());
+        RunningAlarm.setEnabled(true);
         //Activamos la alarma de nuevo
         RunningAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext(),true);
         finish();

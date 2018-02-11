@@ -84,8 +84,8 @@ public class Alarm implements Serializable {
         this.days=days;
         this.repeat = isRepeatEnabled();
         this.dateToSound=null;
-        hourPostponeTime=0;
-        minutePostponeTime=0;
+        hourPostponeTime=hour;
+        minutePostponeTime=minute;
     }
     //Constructor para fecha
     public Alarm(int id,int hour, int minute, int postponeTime, Uri RingtoneTrack, Date dateToSound) {
@@ -97,8 +97,8 @@ public class Alarm implements Serializable {
         this.postponeTime=postponeTime;
         this.dateToSound=dateToSound;
         this.repeat=false;
-        hourPostponeTime=0;
-        minutePostponeTime=0;
+        hourPostponeTime=hour;
+        minutePostponeTime=minute;
         //quiza haga falta hacer new y pasar el array de days a false.
     }
 
@@ -199,9 +199,10 @@ public class Alarm implements Serializable {
                 }
             }
         }else {//si es de posponer.
-            setPostponeData();
+            setPostponeData(horaActual,minutoActual);
             int[] cuandoPoner = cuandoPonerLaAlarma(hourPostponeTime, minutePostponeTime, horaActual, minutoActual, diaActual, yearActual, -1, -1);
             enableAlarmaOneTime(id, alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
+            //si es de varios dias a la semana saber que dia la pospongo.
         }
     }
 
@@ -259,8 +260,9 @@ public class Alarm implements Serializable {
         return resultado;
     }
 
-    public void setPostponeData() {
-        minutePostponeTime+=postponeTime;
+    public void setPostponeData(int horaActual, int minutoActual) {
+        minutePostponeTime=minutoActual+postponeTime;
+        hourPostponeTime=horaActual;
         if(minutePostponeTime>=60) {
             minutePostponeTime-=60;
             hourPostponeTime++;

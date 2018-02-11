@@ -48,7 +48,7 @@ public class RingtonePlayingService extends Service{
 
 
             //que hacer dependiendo de debeDeSonar y el estado del Ringtone
-            if (action == 1 && alarm.getEnabled()) {//En caso de que tenga que sonar
+            if (action == 1 ) {//En caso de que tenga que sonar//&& alarm.getEnabled()
                 //Parte que hace que suene la alarma
                 media_song = MediaPlayer.create(this, Uri.parse(alarm.getRingtoneTrack()));
                 media_song.start();
@@ -108,6 +108,7 @@ public class RingtonePlayingService extends Service{
                 nm.cancelAll();
                 //Desactivo la alarma,
                 alarm.turnOFFAlarmSound(this);
+                alarm.setEnabled(true);
                 //Activamos la alarma de nuevo con isAPostpone true para que cambie los valores al tiempo estipulado que queremos
                 alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),true);
             }
