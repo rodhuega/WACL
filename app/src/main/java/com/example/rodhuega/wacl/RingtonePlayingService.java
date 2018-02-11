@@ -48,7 +48,7 @@ public class RingtonePlayingService extends Service{
             alarm = alarmsAndConfs.searchAlarmID(alarmID);
 
 
-            //que hacer dependiendo de debeDeSonar y el estado del Ringtone
+            //que hacer dependiendo de debeDeSonar y el estado del Ringtone sadsaw
             if (action == 1 ) {//En caso de que tenga que sonar//&& alarm.getEnabled()
                 //Parte que hace que suene la alarma
                 media_song = MediaPlayer.create(this, Uri.parse(alarm.getRingtoneTrack()));
