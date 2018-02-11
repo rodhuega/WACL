@@ -38,7 +38,8 @@ public class RingtonePlayingService extends Service{
             //Recuperar el boolean debeDeSonar
             int action = intent.getExtras().getInt("action");
             int alarmID = intent.getExtras().getInt("alarmID");
-            Log.e("Seguimineto", ": action: " + action + ", alarmID: " + alarmID);
+            int code =  intent.getExtras().getInt("code");
+            Log.e("Seguimineto", ": action: " + action + ", alarmID: " + alarmID+ ", code: " + code);
             //En prueba
             Alarm alarm = null;
             AlarmsAndSettings alarmsAndConfs = null;
@@ -65,20 +66,23 @@ public class RingtonePlayingService extends Service{
                 Intent powerOffButton = new Intent(this, RingtonePlayingService.class);
                 powerOffButton.putExtra("action", 3);
                 powerOffButton.putExtra("alarmID", alarmID);
-                PendingIntent powerOffButtonPending = PendingIntent.getService(getApplicationContext(), alarmID, powerOffButton, PendingIntent.FLAG_ONE_SHOT);
+                powerOffButton.putExtra("code",code);
+                PendingIntent powerOffButtonPending = PendingIntent.getService(getApplicationContext(), code, powerOffButton, PendingIntent.FLAG_ONE_SHOT);
                 Notification.Action actionPowerOff = new Notification.Action(R.mipmap.ic_launcher, getResources().getString(R.string.turnOff_text), powerOffButtonPending);
                 notification.addAction(actionPowerOff);
                 //Accion de posponer
                 Intent PostponeButton = new Intent(this, RingtonePlayingService.class);
                 PostponeButton.putExtra("action", 4);
                 PostponeButton.putExtra("alarmID", alarmID);
-                PendingIntent PostponeButtonPending = PendingIntent.getService(getApplicationContext(), alarmID, PostponeButton, PendingIntent.FLAG_UPDATE_CURRENT);
+                PostponeButton.putExtra("code",code);
+                PendingIntent PostponeButtonPending = PendingIntent.getService(getApplicationContext(), code, PostponeButton, PendingIntent.FLAG_UPDATE_CURRENT);
                 Notification.Action actionPostpone = new Notification.Action(R.mipmap.ic_launcher, getResources().getString(R.string.postpone_text), PostponeButtonPending);
                 notification.addAction(actionPostpone);
                 //Si se pulsa en la notificacion va a una activity en la que se pospone o apaga la alarma
                 Intent goToPowerOff = new Intent(getApplicationContext(), powerOffActivity.class);
                 goToPowerOff.putExtra("alarmID", alarmID);
-                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), alarmID, goToPowerOff, PendingIntent.FLAG_UPDATE_CURRENT);
+                goToPowerOff.putExtra("code",code);
+                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), code, goToPowerOff, PendingIntent.FLAG_UPDATE_CURRENT);
                 notification.setContentIntent(pendingIntent);
                 nm = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                 nm.notify(5163213, notification.build());
@@ -107,7 +111,7 @@ public class RingtonePlayingService extends Service{
                 media_song.reset();
                 nm.cancelAll();
                 //Desactivo la alarma,
-                alarm.turnOFFAlarmSound(this);
+                alarm.turnOFFAlarmSound(this,code);
                 alarm.setEnabled(true);
                 //Activamos la alarma de nuevo con isAPostpone true para que cambie los valores al tiempo estipulado que queremos
                 alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),true);

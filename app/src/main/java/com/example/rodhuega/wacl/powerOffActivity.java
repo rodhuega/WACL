@@ -11,6 +11,7 @@ import java.io.IOException;
 
 public class powerOffActivity extends AppCompatActivity {
     private Alarm RunningAlarm;
+    private int code;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,6 +19,7 @@ public class powerOffActivity extends AppCompatActivity {
         //Cargar alarma
         Intent intent = getIntent();
         int alarmID = intent.getIntExtra("alarmID",-10);
+        code = intent.getIntExtra("code", Integer.MIN_VALUE);
         Log.e("Seguimineto", "alarmID: "+ alarmID);
         try {
             RunningAlarm = AlarmsAndSettings.loadAlarms(getApplicationContext().getFilesDir().getPath().toString()+AlarmsAndSettings.NOMBREDELFICHERODECONF).searchAlarmID(alarmID);
@@ -28,15 +30,14 @@ public class powerOffActivity extends AppCompatActivity {
 
     public void turnOffButtonOnClick(View view) {
         Log.e("WIP", "apagar alarma");
-        RunningAlarm.turnOFFAlarmSound(this.getApplicationContext());
+        RunningAlarm.turnOFFAlarmSound(this.getApplicationContext(),code);
         finish();
     }
 
     public void postponeButtonOnClick(View view) {
         Log.e("WIP", "Posponer alarma");
         //Desactivo la alarma,
-        RunningAlarm.turnOFFAlarmSound(this);
-        RunningAlarm.setEnabled(true);
+        RunningAlarm.turnOFFAlarmSound(this,code);
         //Activamos la alarma de nuevo
         RunningAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext(),true);
         finish();

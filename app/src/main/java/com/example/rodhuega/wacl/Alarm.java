@@ -180,6 +180,8 @@ public class Alarm implements Serializable {
         int diaActual= calendar.get(Calendar.DAY_OF_YEAR);
         int yearActual= calendar.get(Calendar.YEAR);
         if(!isAPostpone) {//si es la alarma normal
+            hourPostponeTime=hour;
+            minutePostponeTime=minute;
             if (dateToSound != null) {//Si es una fecha,
                 // hace falta verificar que se ha metido una fecha futuroa y tal, si no se cumple quiza tirar un throw
 
@@ -214,15 +216,17 @@ public class Alarm implements Serializable {
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
         goToEnable.putExtra("action",action);
         goToEnable.putExtra("alarmID", id);
+        goToEnable.putExtra("code", code);
         Log.e("miID",id+"");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,code,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
     }
 
-    public void turnOFFAlarmSound(Context ctx) {//ver casos
+    public void turnOFFAlarmSound(Context ctx, int code) {//ver casos
         Intent goToDisable = new Intent(ctx, AlarmOperations.class);
         goToDisable.putExtra("action",2);
         goToDisable.putExtra("alarmID", id);
+        goToDisable.putExtra("code", code);
         ctx.sendBroadcast(goToDisable);
     }
 
