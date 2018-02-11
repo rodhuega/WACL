@@ -39,7 +39,7 @@ public class powerOffActivity extends AppCompatActivity {
         //cambiamos el valor de los minutos por el valor de posponer configurado en la alarma
         RunningAlarm.setMinute(RunningAlarm.getMinute()+RunningAlarm.getPostponeTime());
         //Activamos la alarma de nuevo
-        RunningAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext());
+        RunningAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext(),true);
         finish();
     }
 }

@@ -81,7 +81,7 @@ public class addAlarmActivity extends AppCompatActivity {
                 myAlarms.replaceAlarm(editAlarm.getId(),newAlarm);
             }
             AlarmsAndSettings.saveAlarms(myAlarms,alarmsSavedFilePath);
-            newAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext());
+            newAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext(),false);
             Intent goToMain = new Intent(this.getApplicationContext(), MainActivity.class);
             startActivity(goToMain);
         }catch (IOException ioe) {

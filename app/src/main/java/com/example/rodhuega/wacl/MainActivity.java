@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                     saveAlarms();
                 }else {//signifca que se va a activar
                     finalAlarm.setEnabled(true);
-                    finalAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),finalctx);
+                    finalAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),finalctx,false);
                     //ir a metodo que activa que suene la alarm
                     saveAlarms();
                 }

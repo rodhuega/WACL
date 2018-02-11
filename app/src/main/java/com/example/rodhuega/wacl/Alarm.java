@@ -59,6 +59,16 @@ public class Alarm implements Serializable {
     private int postponeTime;
 
     /**
+     * Int que representa la hora despues de haber pospuesto la alarma
+     */
+    private int hourPostponeTime;
+
+    /**
+     * Int que representa los minutos despues de haber pospuesto la alarma
+     */
+    private int minutePostponeTime;
+
+    /**
      * Uri que contiene la pista que se va a reproducir en la alarma.
      */
     private String RingtoneTrack;
@@ -74,6 +84,8 @@ public class Alarm implements Serializable {
         this.days=days;
         this.repeat = isRepeatEnabled();
         this.dateToSound=null;
+        hourPostponeTime=0;
+        minutePostponeTime=0;
     }
     //Constructor para fecha
     public Alarm(int id,int hour, int minute, int postponeTime, Uri RingtoneTrack, Date dateToSound) {
@@ -85,6 +97,8 @@ public class Alarm implements Serializable {
         this.postponeTime=postponeTime;
         this.dateToSound=dateToSound;
         this.repeat=false;
+        hourPostponeTime=0;
+        minutePostponeTime=0;
         //quiza haga falta hacer new y pasar el array de days a false.
     }
 
@@ -109,63 +123,93 @@ public class Alarm implements Serializable {
         return false;
     }
 
-    public int[] cuandoPonerLaAlarma(int horaActual, int minutoActual,int diaActual, int yearActual,int targetDay) {
+    public int diaDeLaSemanaEnElQueEstamosConMiSistema(int dayOfWeek) {
+        switch (dayOfWeek) {
+            case Calendar.MONDAY:return 0;
+            case Calendar.TUESDAY:return 1;
+            case Calendar.WEDNESDAY:return 2;
+            case Calendar.THURSDAY:return 3;
+            case Calendar.FRIDAY:return 4;
+            case Calendar.SATURDAY:return 5;
+            case Calendar.SUNDAY:return 6;
+            default: return -1;
+        }
+    }
+
+    public int[] cuandoPonerLaAlarma(int hora, int minuto, int horaActual, int minutoActual,int diaActual, int yearActual,int dayOfWeek, int targetDay) {
         //Array que contiene que dia poner la alarma, posicion 0 del array dia, 1 año
-        int[] resultado = new int[4];
-        if(targetDay==-1) {//caso en el que se pone para el dia inmediatamente siguiente, es decir, no es alarma que se repite cada semana
-            if (horaActual>hour || (horaActual==hour && minutoActual>minute)) {//caso en el que se pone para el dia inmediatamente siguiente
-                if( esBisiesto(yearActual)|| diaActual==366) { //año no bisiesto o año bisiesto y estamos en el dia 366
-                    resultado[0]=1;
-                }else if(diaActual==365 && esBisiesto(yearActual)){ //bisiesto y estamos en el dia 365
-                    resultado[0]= 366;
-                }else {//dias habituales
-                    resultado[0]=diaActual+1;
-                }
-            }else {
+        int[] resultado = new int[2];
+        resultado[1]=yearActual;
+        if(dayOfWeek==-1) {//caso en el que se pone para el dia inmediatamente siguiente, es decir, no es alarma que se repite cada semana
+            if (horaActual>hora || (horaActual==hora && minutoActual>=minuto)) {//caso en el que se pone para el dia inmediatamente siguiente
+                resultado[0]=diaActual+1;
+            }else {//caso en el que se pone para el mismo dia
                 resultado[0]=diaActual;
             }
         }else {//caso en que la alarma se repite todas las semanas
-
+            dayOfWeek=diaDeLaSemanaEnElQueEstamosConMiSistema(dayOfWeek);
+            int dentroDeCuando=targetDay-dayOfWeek;
+            if(dentroDeCuando>0) {//el dia de la semana esta por venir
+                resultado[0]= diaActual+dentroDeCuando;
+            }else if(dentroDeCuando<0) {//el dia de la semana ya ha pasado
+                resultado[0]=diaActual+7+dentroDeCuando;
+            }else {//estas en ese dia de la semana
+                resultado[0]=cuandoPonerLaAlarma(hora, minuto, horaActual,minutoActual,diaActual,yearActual,-1,-1)[0];
+                if(resultado[0]!=diaActual) {
+                    resultado[0]+=6;
+                }
+            }
         }
-        if(resultado[0]<diaActual) {//si el dia se ha vuelto mas pequeño, significa que hemos cambiado de año y hay que incrementarlo
+        //Casos de que empiece nuevo año o bisiesto
+        if(resultado[0]>365 && !esBisiesto(yearActual)) {
+            resultado[0]-=365;
+        }else  if(resultado[0]>366 && esBisiesto(yearActual)) {
+            resultado[0]-=366;
+        }
+        //si el dia se ha vuelto mas pequeño, significa que hemos cambiado de año y hay que incrementarlo, significa que hemos cambiado de año
+        if(resultado[0]<diaActual) {
             resultado[1]=yearActual+1;
         }
-
         return resultado;
     }
 
-    public void enableAlarmSound(AlarmManager alarmManager, Context ctx) {
+    public void enableAlarmSound(AlarmManager alarmManager, Context ctx, boolean isAPostpone) {
         Calendar calendar = Calendar.getInstance();
-        if(dateToSound!=null) {//Si es una fecha,
-            // hace falta verificar que se ha metido una fecha futuroa y tal, si no se cumple quiza tirar un throw
+        int horaActual=calendar.get(Calendar.HOUR_OF_DAY);
+        int minutoActual=calendar.get(Calendar.MINUTE);
+        int diaActual= calendar.get(Calendar.DAY_OF_YEAR);
+        int yearActual= calendar.get(Calendar.YEAR);
+        if(!isAPostpone) {//si es la alarma normal
+            if (dateToSound != null) {//Si es una fecha,
+                // hace falta verificar que se ha metido una fecha futuroa y tal, si no se cumple quiza tirar un throw
 
-        }else if(!repeat && dateToSound==null) {//en caso de que solo se ponga para un dia(fecha mas cercana)
-            //Ver si se pone para hoy o para mañana
-            int horaActual=calendar.get(Calendar.HOUR_OF_DAY);
-            int minutoActual=calendar.get(Calendar.MINUTE);
-            int diaActual= calendar.get(Calendar.DAY_OF_YEAR);
-            int yearActual= calendar.get(Calendar.YEAR);
-            int[] cuandoPoner=cuandoPonerLaAlarma(horaActual,minutoActual,diaActual,yearActual,-1);
-            enableAlarmaOneTime(id,alarmManager,ctx,calendar,cuandoPoner[0],cuandoPoner[1],1);
+            } else if (!repeat && dateToSound == null) {//en caso de que solo se ponga para un dia(fecha mas cercana)
+                //Ver si se pone para hoy o para mañana
+                int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, -1, -1);
+                enableAlarmaOneTime(id, alarmManager, ctx, calendar, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
 
-        }else {//en el caso de que se use alarma para diferentes dias de la semana
-            //poner la alarma para esos dias con codigo que esta dentro del array Days
-            for (int day:days) {
-                if(day<0) {//si ese dia esta habilitado, se pone la alarma para ese dia.
-                    //WIP////////////////////////////////////
-                    cuandoPonerLaAlarma();
-                    enableAlarmaOneTime();
+            } else {//en el caso de que se use alarma para diferentes dias de la semana
+                //poner la alarma para esos dias con codigo que esta dentro del array Days
+                for (int i = 0; i < days.length; i++) {
+                    if (days[i] < 0) {//si ese dia esta habilitado, se pone la alarma para ese dia.
+                        //WIP////////////////////////////////////
+                        int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, calendar.get(Calendar.DAY_OF_WEEK), i);
+                        enableAlarmaOneTime(days[i], alarmManager, ctx, calendar, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
+                    }
                 }
             }
-            //pending intent para renovar la alarma casa semana, con la id de la alarma
+        }else {//si es de posponer.
+            setPostponeData();
+            int[] cuandoPoner = cuandoPonerLaAlarma(hourPostponeTime, minutePostponeTime, horaActual, minutoActual, diaActual, yearActual, -1, -1);
+            enableAlarmaOneTime(id, alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
         }
     }
 
-    public void enableAlarmaOneTime(int code, AlarmManager alarmManager,Context ctx, Calendar calendar, int diaAPoner, int yearActual, int action) {
-        calendar.set(Calendar.YEAR,yearActual);
+    public void enableAlarmaOneTime(int code, AlarmManager alarmManager,Context ctx, Calendar calendar,int hora, int minuto, int diaAPoner, int yearAPoner, int action) {
+        calendar.set(Calendar.YEAR,yearAPoner);
         calendar.set(Calendar.DAY_OF_YEAR,diaAPoner);
-        calendar.set(Calendar.HOUR_OF_DAY,hour);
-        calendar.set(Calendar.MINUTE,minute);
+        calendar.set(Calendar.HOUR_OF_DAY,hora);
+        calendar.set(Calendar.MINUTE,minuto);
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
         goToEnable.putExtra("action",action);
         goToEnable.putExtra("alarmID", id);
@@ -183,8 +227,17 @@ public class Alarm implements Serializable {
 
     public void cancelAlarm(AlarmManager alarmManager, Context ctx) {//ver casos
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,id,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.cancel(pendingIntent);
+        if(!repeat) {//alarma de fecha o de la hora siguiente mas cercana
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, id, goToEnable, PendingIntent.FLAG_UPDATE_CURRENT);
+            alarmManager.cancel(pendingIntent);
+        }else {//para alarma que se repite todas las semanas
+            for (int i=0;i<days.length;i++) {
+                if(days[i]<0) {//si ese dia esta habilitado, se desactiva la alarma
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, days[i], goToEnable, PendingIntent.FLAG_UPDATE_CURRENT);
+                    alarmManager.cancel(pendingIntent);
+                }
+            }
+        }
     }
 
     public void saveAlarm(String path) throws IOException {
@@ -204,6 +257,17 @@ public class Alarm implements Serializable {
         f1.close();
         f2.close();
         return resultado;
+    }
+
+    public void setPostponeData() {
+        minutePostponeTime+=postponeTime;
+        if(minutePostponeTime>=60) {
+            minutePostponeTime-=60;
+            hourPostponeTime++;
+            if(hourPostponeTime>=24) {
+                hourPostponeTime -= 24;
+            }
+        }
     }
 
     //Gets
@@ -245,6 +309,14 @@ public class Alarm implements Serializable {
         return RingtoneTrack;
     }
 
+    public int getHourPostponeTime() {
+        return hourPostponeTime;
+    }
+
+    public int getMinutePostponeTime() {
+        return minutePostponeTime;
+    }
+
     //Sets
 
 
@@ -282,5 +354,13 @@ public class Alarm implements Serializable {
 
     public void setRingtoneTrack(String ringtoneTrack) {
         RingtoneTrack = ringtoneTrack;
+    }
+
+    public void setHourPostponeTime(int hourPostponeTime) {
+        this.hourPostponeTime = hourPostponeTime;
+    }
+
+    public void setMinutePostponeTime(int minutePostponeTime) {
+        this.minutePostponeTime = minutePostponeTime;
     }
 }

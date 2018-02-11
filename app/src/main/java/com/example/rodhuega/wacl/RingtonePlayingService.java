@@ -23,7 +23,6 @@ import java.io.IOException;
 public class RingtonePlayingService extends Service{
 
     MediaPlayer media_song;
-    boolean isRunning;
     Notification.Builder notification;
     NotificationManager nm;
 
@@ -87,12 +86,20 @@ public class RingtonePlayingService extends Service{
                 Log.e("Seguimiento", "Entre id:" + alarmID);
                 media_song.stop();
                 media_song.reset();
-                alarm.setEnabled(false);
+                if(!alarm.getRepeat()) {//en caso de que no sea una alarma del tipo que se repite cada semana
+                    alarm.setEnabled(false);
+                }else {//Poner la alarma para la semana siguiente
+                    alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false);
+                }
                 AlarmsAndSettings.saveAlarms(alarmsAndConfs,alarmsSavedFilePath);
             } else if (action == 3) {//Parar alarma desde notificacion
                 media_song.stop();
                 media_song.reset();
-                alarm.setEnabled(false);
+                if(!alarm.getRepeat()) {//en caso de que no sea una alarma del tipo que se repite cada semana
+                    alarm.setEnabled(false);
+                }else {//Poner la alarma para la semana siguiente
+                    alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false);
+                }
                 nm.cancelAll();
                 AlarmsAndSettings.saveAlarms(alarmsAndConfs,alarmsSavedFilePath);
             } else if (action == 4) {//posponer
@@ -101,23 +108,17 @@ public class RingtonePlayingService extends Service{
                 nm.cancelAll();
                 //Desactivo la alarma,
                 alarm.turnOFFAlarmSound(this);
-                //cambiamos el valor de los minutos por el valor de posponer configurado en la alarma
-                alarm.setMinute(alarm.getMinute() + alarm.getPostponeTime());
-                //Activamos la alarma de nuevo
-                alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext());
-            }else if(action == 5) {//si es alarma de varios dias a la semana, renueva la alarma para la siguiente alarma
-                alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext());
+                //Activamos la alarma de nuevo con isAPostpone true para que cambie los valores al tiempo estipulado que queremos
+                alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),true);
             }
         }catch (IOException |ClassNotFoundException e) {
             Log.e("OOOR", "XDDDD");
         }
-
         return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        isRunning=false;//puede que sobre
     }
 }

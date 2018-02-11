@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/WACL.iml" filepath="$PROJECT_DIR$/WACL.iml" />
-      <module fileurl="file://C:\Users\pillo\AndroidStudioProjects\WACL\.idea\WACL.iml" filepath="C:\Users\pillo\AndroidStudioProjects\WACL\.idea\WACL.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
