@@ -200,11 +200,18 @@ public class Alarm implements Serializable {
                     }
                 }
             }
+            resetPostponeData();
         }else {//si es de posponer.
             setPostponeData(horaActual,minutoActual);
             int[] cuandoPoner = cuandoPonerLaAlarma(hourPostponeTime, minutePostponeTime, horaActual, minutoActual, diaActual, yearActual, -1, -1);
-            enableAlarmaOneTime(id, alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
-            //si es de varios dias a la semana saber que dia la pospongo.
+            if(repeat) {
+                //si es de varios dias a la semana saber que dia la pospongo.
+                int code = diaDeLaSemanaEnElQueEstamosConMiSistema(diaActual);
+                enableAlarmaOneTime(days[code], alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
+            }else {
+                enableAlarmaOneTime(id, alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
+            }
+
         }
     }
 
@@ -274,6 +281,11 @@ public class Alarm implements Serializable {
                 hourPostponeTime -= 24;
             }
         }
+    }
+
+    public void resetPostponeData() {
+        hourPostponeTime=hour;
+        minutePostponeTime=minute;
     }
 
     //Gets

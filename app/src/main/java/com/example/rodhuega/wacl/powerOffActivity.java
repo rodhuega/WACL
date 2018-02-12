@@ -10,6 +10,7 @@ import android.view.View;
 import java.io.IOException;
 
 public class powerOffActivity extends AppCompatActivity {
+    private AlarmsAndSettings confAndAlarms;
     private Alarm RunningAlarm;
     private int code;
     @Override

@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveAlarms();
+                saveAlarms(confAndAlarms,alarmsSavedFilePath);
                 Intent goToAddAlarm = new Intent(context, addAlarmActivity.class);
                 goToAddAlarm.putExtra("optionAddAlarm",1);
                 startActivity(goToAddAlarm);
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         });
         //Cargar todas las alarmas guardadas a traves de un fichero
         alarmsLayout = (LinearLayout) findViewById(R.id.alarmsLayout);
-        loadAlarms();
+        confAndAlarms=loadAlarms();
         drawAllAlarms();
 
 
@@ -171,12 +171,12 @@ public class MainActivity extends AppCompatActivity {
                     finalAlarm.setEnabled(false);
                     //ir a metodo que apaga la alarma
                     finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE),finalctx);
-                    saveAlarms();
+                    saveAlarms(confAndAlarms,alarmsSavedFilePath);
                 }else {//signifca que se va a activar
                     finalAlarm.setEnabled(true);
                     finalAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),finalctx,false);
                     //ir a metodo que activa que suene la alarm
-                    saveAlarms();
+                    saveAlarms(confAndAlarms,alarmsSavedFilePath);
                 }
                 activeSwitch.setChecked(finalAlarm.getEnabled());
             }
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
                 finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE), finalctx);
                 confAndAlarms.deleteAlarm(finalAlarm.getId());
                 ///Reguardar la informacion del fichero
-                saveAlarms();
+                saveAlarms(confAndAlarms,alarmsSavedFilePath);
                 //borrar y repintar la GUI
                 alarmsLayout.removeAllViews();
                 drawAllAlarms();
@@ -252,20 +252,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadAlarms();
+        confAndAlarms=loadAlarms();
         alarmsLayout.removeAllViews();
         drawAllAlarms();
     }
 
-    private void loadAlarms() {
+    public AlarmsAndSettings loadAlarms() {
+        AlarmsAndSettings resultado = null;
         try {
-            confAndAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
+            resultado = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
         }catch (IOException | ClassNotFoundException ioe) {
             Log.e("ERRRRR", ioe.getMessage());
         }
+        return resultado;
     }
 
-    private void saveAlarms() {
+    public static void saveAlarms(AlarmsAndSettings confAndAlarms, String alarmsSavedFilePath) {
         try {
             AlarmsAndSettings.saveAlarms(confAndAlarms,alarmsSavedFilePath);
         }catch (IOException e) {

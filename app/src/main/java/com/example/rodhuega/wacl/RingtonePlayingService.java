@@ -95,7 +95,6 @@ public class RingtonePlayingService extends Service{
                 }else {//Poner la alarma para la semana siguiente
                     alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false);
                 }
-                AlarmsAndSettings.saveAlarms(alarmsAndConfs,alarmsSavedFilePath);
             } else if (action == 3) {//Parar alarma desde notificacion
                 media_song.stop();
                 media_song.reset();
@@ -105,7 +104,6 @@ public class RingtonePlayingService extends Service{
                     alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false);
                 }
                 nm.cancelAll();
-                AlarmsAndSettings.saveAlarms(alarmsAndConfs,alarmsSavedFilePath);
             } else if (action == 4) {//posponer
                 media_song.stop();
                 media_song.reset();
@@ -116,6 +114,8 @@ public class RingtonePlayingService extends Service{
                 //Activamos la alarma de nuevo con isAPostpone true para que cambie los valores al tiempo estipulado que queremos
                 alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),true);
             }
+            alarmsAndConfs.replaceAlarm(alarm.getId(),alarm);
+            AlarmsAndSettings.saveAlarms(alarmsAndConfs,alarmsSavedFilePath);
         }catch (IOException |ClassNotFoundException e) {
             Log.e("OOOR", "XDDDD");
         }
