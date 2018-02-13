@@ -40,7 +40,7 @@ public class powerOffActivity extends AppCompatActivity {
         //Desactivo la alarma,
         RunningAlarm.turnOFFAlarmSound(this,code);
         //Activamos la alarma de nuevo
-        RunningAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext(),true);
+        RunningAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext(),true,false);
         finish();
     }
 }

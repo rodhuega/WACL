@@ -173,7 +173,7 @@ public class Alarm implements Serializable {
         return resultado;
     }
 
-    public void enableAlarmSound(AlarmManager alarmManager, Context ctx, boolean isAPostpone) {
+    public void enableAlarmSound(AlarmManager alarmManager, Context ctx, boolean isAPostpone, boolean isRenableCode) {
         Calendar calendar = Calendar.getInstance();
         int horaActual=calendar.get(Calendar.HOUR_OF_DAY);
         int minutoActual=calendar.get(Calendar.MINUTE);
@@ -190,7 +190,7 @@ public class Alarm implements Serializable {
                 int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, -1, -1);
                 enableAlarmaOneTime(id, alarmManager, ctx, calendar, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
 
-            } else {//en el caso de que se use alarma para diferentes dias de la semana
+            } else if(!isRenableCode) {//en el caso de que se use alarma para diferentes dias de la semana
                 //poner la alarma para esos dias con codigo que esta dentro del array Days
                 for (int i = 0; i < days.length; i++) {
                     if (days[i] < 0) {//si ese dia esta habilitado, se pone la alarma para ese dia.
@@ -199,15 +199,19 @@ public class Alarm implements Serializable {
                         enableAlarmaOneTime(days[i], alarmManager, ctx, calendar, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
                     }
                 }
+            }else if(!isAPostpone) {//si es para poner la alarma la siguiente semana
+                int codeIndex = diaDeLaSemanaEnElQueEstamosConMiSistema(calendar.get(Calendar.DAY_OF_WEEK));
+                int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, calendar.get(Calendar.DAY_OF_WEEK), codeIndex);
+                enableAlarmaOneTime(days[codeIndex], alarmManager, ctx, calendar, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
             }
             resetPostponeData();
         }else {//si es de posponer.
             setPostponeData(horaActual,minutoActual);
             int[] cuandoPoner = cuandoPonerLaAlarma(hourPostponeTime, minutePostponeTime, horaActual, minutoActual, diaActual, yearActual, -1, -1);
-            if(repeat) {
+            if(repeat &&isRenableCode && isAPostpone) {
                 //si es de varios dias a la semana saber que dia la pospongo.
-                int code = diaDeLaSemanaEnElQueEstamosConMiSistema(diaActual);
-                enableAlarmaOneTime(days[code], alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
+                int codeIndex = diaDeLaSemanaEnElQueEstamosConMiSistema(calendar.get(Calendar.DAY_OF_WEEK));
+                enableAlarmaOneTime(days[codeIndex], alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
             }else {
                 enableAlarmaOneTime(id, alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
             }

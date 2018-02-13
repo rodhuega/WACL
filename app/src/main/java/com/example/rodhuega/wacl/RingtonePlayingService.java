@@ -47,6 +47,9 @@ public class RingtonePlayingService extends Service{
             alarmsAndConfs = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
             alarm = alarmsAndConfs.searchAlarmID(alarmID);
 
+            //Informacion extra para debugear
+            String stringCode = code+"";
+            char diaCode = stringCode.charAt(stringCode.length()-1);
 
             //que hacer dependiendo de debeDeSonar y el estado del Ringtone sadsaw
             if (action == 1 ) {//En caso de que tenga que sonar//&& alarm.getEnabled()
@@ -60,7 +63,7 @@ public class RingtonePlayingService extends Service{
                 notification.setTicker("WACL Notification");
                 notification.setWhen(System.currentTimeMillis());
                 notification.setContentTitle(getResources().getString(R.string.app_name));
-                notification.setContentText(MainActivity.twoDigits(alarm.getHour()) + ":" + MainActivity.twoDigits(alarm.getMinute()));
+                notification.setContentText(MainActivity.twoDigits(alarm.getHour()) + ":" + MainActivity.twoDigits(alarm.getMinute())+"Dia: "+ diaCode);
                 //botones de notificacion
                 //Accion de apagar la alarma
                 Intent powerOffButton = new Intent(this, RingtonePlayingService.class);
@@ -93,7 +96,7 @@ public class RingtonePlayingService extends Service{
                 if(!alarm.getRepeat()) {//en caso de que no sea una alarma del tipo que se repite cada semana
                     alarm.setEnabled(false);
                 }else {//Poner la alarma para la semana siguiente
-                    alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false);
+                    alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false,true);
                 }
             } else if (action == 3) {//Parar alarma desde notificacion
                 media_song.stop();
@@ -101,7 +104,7 @@ public class RingtonePlayingService extends Service{
                 if(!alarm.getRepeat()) {//en caso de que no sea una alarma del tipo que se repite cada semana
                     alarm.setEnabled(false);
                 }else {//Poner la alarma para la semana siguiente
-                    alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false);
+                    alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false,true);
                 }
                 nm.cancelAll();
             } else if (action == 4) {//posponer
@@ -112,7 +115,11 @@ public class RingtonePlayingService extends Service{
                 alarm.turnOFFAlarmSound(this,code);
                 alarm.setEnabled(true);
                 //Activamos la alarma de nuevo con isAPostpone true para que cambie los valores al tiempo estipulado que queremos
-                alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),true);
+                if(!alarm.getRepeat()) {
+                    alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(), true, false);
+                }else {//alarmas que de dias a la semana
+                    alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(), true, true);
+                }
             }
             alarmsAndConfs.replaceAlarm(alarm.getId(),alarm);
             AlarmsAndSettings.saveAlarms(alarmsAndConfs,alarmsSavedFilePath);
