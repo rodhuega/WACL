@@ -180,8 +180,6 @@ public class Alarm implements Serializable {
         int diaActual= calendar.get(Calendar.DAY_OF_YEAR);
         int yearActual= calendar.get(Calendar.YEAR);
         if(!isAPostpone) {//si es la alarma normal
-            hourPostponeTime=hour;
-            minutePostponeTime=minute;
             if (dateToSound != null) {//Si es una fecha,
                 // hace falta verificar que se ha metido una fecha futuroa y tal, si no se cumple quiza tirar un throw
 
@@ -195,7 +193,8 @@ public class Alarm implements Serializable {
                 for (int i = 0; i < days.length; i++) {
                     if (days[i] < 0) {//si ese dia esta habilitado, se pone la alarma para ese dia.
                         //WIP////////////////////////////////////
-                        int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, calendar.get(Calendar.DAY_OF_WEEK), i);
+                        Calendar calendarProv = Calendar.getInstance();
+                        int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, calendarProv.get(Calendar.DAY_OF_WEEK), i);
                         enableAlarmaOneTime(days[i], alarmManager, ctx, calendar, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
                     }
                 }
@@ -210,8 +209,9 @@ public class Alarm implements Serializable {
             int[] cuandoPoner = cuandoPonerLaAlarma(hourPostponeTime, minutePostponeTime, horaActual, minutoActual, diaActual, yearActual, -1, -1);
             if(repeat &&isRenableCode && isAPostpone) {
                 //si es de varios dias a la semana saber que dia la pospongo.
-                int codeIndex = diaDeLaSemanaEnElQueEstamosConMiSistema(calendar.get(Calendar.DAY_OF_WEEK));
-                enableAlarmaOneTime(days[codeIndex], alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
+                Calendar calendarProv = Calendar.getInstance();
+                int codeIndex = diaDeLaSemanaEnElQueEstamosConMiSistema(calendarProv.get(Calendar.DAY_OF_WEEK));
+                enableAlarmaOneTime(days[codeIndex], alarmManager, ctx, calendarProv, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
             }else {
                 enableAlarmaOneTime(id, alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
             }
