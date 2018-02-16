@@ -61,6 +61,7 @@ public class RingtonePlayingService extends Service{
                 //Notificacion de que esta sonando la alarma
                 notification = new Notification.Builder(getApplicationContext());
                 notification.setAutoCancel(true);
+                notification.setOngoing(true);
                 notification.setSmallIcon(R.mipmap.ic_launcher);
                 notification.setTicker("WACL Notification");
                 notification.setWhen(System.currentTimeMillis());
@@ -91,7 +92,7 @@ public class RingtonePlayingService extends Service{
                 notification.setContentIntent(pendingIntent);
                 nm = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                 nm.notify(5163213, notification.build());
-            } else if (action == 2) {//Parar la alarma desde stio activity
+            } else if (action == 2 || action==3) {//Parar la alarma desde stio activity
                 Log.e("Seguimiento", "Entre id:" + alarmID);
                 media_song.stop();
                 media_song.reset();
@@ -100,19 +101,15 @@ public class RingtonePlayingService extends Service{
                 }else {//Poner la alarma para la semana siguiente
                     alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false,true);
                 }
-            } else if (action == 3) {//Parar alarma desde notificacion
-                media_song.stop();
-                media_song.reset();
-                if(!alarm.getRepeat()) {//en caso de que no sea una alarma del tipo que se repite cada semana
-                    alarm.setEnabled(false);
-                }else {//Poner la alarma para la semana siguiente
-                    alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false,true);
+                if(action==3) {
+                    nm.cancelAll();
                 }
-                nm.cancelAll();
             } else if (action == 4) {//posponer
                 nm.cancelAll();
                 //Desactivo la alarma,
-                alarm.turnOFFAlarmSound(this,code);
+                //alarm.turnOFFAlarmSound(this,code);
+                media_song.stop();
+                media_song.reset();
                 alarm.setEnabled(true);
                 //Activamos la alarma de nuevo con isAPostpone true para que cambie los valores al tiempo estipulado que queremos
                 if(!alarm.getRepeat()) {

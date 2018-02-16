@@ -12,40 +12,32 @@ import java.io.IOException;
 public class powerOffActivity extends AppCompatActivity {
     private AlarmsAndSettings confAndAlarms;
     private Alarm RunningAlarm;
-    private int code;
+    private int code,alarmID;
+    private Intent goToActionService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_power_off);
         //Cargar alarma
         Intent intent = getIntent();
-        int alarmID = intent.getIntExtra("alarmID",-10);
+        alarmID = intent.getIntExtra("alarmID",-10);
         code = intent.getIntExtra("code", Integer.MIN_VALUE);
-        Log.e("Seguimineto", "alarmID: "+ alarmID);
-        try {
-            RunningAlarm = AlarmsAndSettings.loadAlarms(getApplicationContext().getFilesDir().getPath().toString()+AlarmsAndSettings.NOMBREDELFICHERODECONF).searchAlarmID(alarmID);
-        }catch (IOException |ClassNotFoundException ioe) {
-            Log.e("ERRRRRRRR", " ya tu sae");
-        }
+        goToActionService = new Intent(getApplicationContext(),RingtonePlayingService.class);
+        goToActionService.putExtra("alarmID",alarmID);
+        goToActionService.putExtra("code",code);
     }
 
     public void turnOffButtonOnClick(View view) {
         Log.e("WIP", "apagar alarma");
-        RunningAlarm.turnOFFAlarmSound(this.getApplicationContext(),code);
+        goToActionService.putExtra("action",2);
+        startService(goToActionService);
         finish();
     }
 
     public void postponeButtonOnClick(View view) {
         Log.e("WIP", "Posponer alarma");
-        //Desactivo la alarma,
-        RunningAlarm.turnOFFAlarmSound(this,code);
-        //Activamos la alarma de nuevo
-        if(!RunningAlarm.getRepeat()) {
-            RunningAlarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(), true, false);
-        }else {//alarmas que de dias a la semana
-            Log.e("DebugDificil","Dentro de else if action 4");//Debug
-            RunningAlarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(), true, true);
-        }
+        goToActionService.putExtra("action",4);
+        startService(goToActionService);
         finish();
     }
 }

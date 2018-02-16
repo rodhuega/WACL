@@ -46,7 +46,7 @@ public class Alarm implements Serializable {
     /**
      * En caso de que se quiera poner para una fecha determinada en vez de para dias de la semana
      */
-    private Date dateToSound;
+    private Fecha dateToSound;
 
     /**
      * Int que representa una identificacion de la alarma
@@ -88,7 +88,7 @@ public class Alarm implements Serializable {
         minutePostponeTime=minute;
     }
     //Constructor para fecha
-    public Alarm(int id,int hour, int minute, int postponeTime, Uri RingtoneTrack, Date dateToSound) {
+    public Alarm(int id,int hour, int minute, int postponeTime, String RingtoneTrack, Fecha dateToSound) {
         this.id = id;
         this.enabled = true;
         this.hour=hour;
@@ -307,7 +307,7 @@ public class Alarm implements Serializable {
         return repeat;
     }
 
-    public Date getDateToSound() {
+    public Fecha getDateToSound() {
         return dateToSound;
     }
 
@@ -354,7 +354,7 @@ public class Alarm implements Serializable {
         this.repeat = repeat;
     }
 
-    public void setDateToSound(Date dateToSound) {
+    public void setDateToSound(Fecha dateToSound) {
         this.dateToSound = dateToSound;
     }
 

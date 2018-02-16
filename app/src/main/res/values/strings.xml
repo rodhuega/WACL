@@ -15,4 +15,5 @@
     <string name="delete_text">Delete</string>
     <string name="turnOff_text">Turn Off</string>
     <string name="postpone_text">Postpone</string>
+    <string name="daysOrDate_text">Days or Date</string>
 </resources>
