@@ -15,6 +15,7 @@ import android.util.AndroidRuntimeException;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 /**
  * Created by pillo on 07/02/2018.
@@ -50,6 +51,7 @@ public class RingtonePlayingService extends Service{
             //Informacion extra para debugear
             String stringCode = code+"";
             char diaCode = stringCode.charAt(stringCode.length()-1);
+            int dia = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
 
             //que hacer dependiendo de debeDeSonar y el estado del Ringtone sadsaw
             if (action == 1 ) {//En caso de que tenga que sonar//&& alarm.getEnabled()
@@ -108,8 +110,6 @@ public class RingtonePlayingService extends Service{
                 }
                 nm.cancelAll();
             } else if (action == 4) {//posponer
-                media_song.stop();
-                media_song.reset();
                 nm.cancelAll();
                 //Desactivo la alarma,
                 alarm.turnOFFAlarmSound(this,code);
@@ -118,6 +118,7 @@ public class RingtonePlayingService extends Service{
                 if(!alarm.getRepeat()) {
                     alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(), true, false);
                 }else {//alarmas que de dias a la semana
+                    Log.e("DebugDificil","Dentro de else if action 4");//Debug
                     alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(), true, true);
                 }
             }

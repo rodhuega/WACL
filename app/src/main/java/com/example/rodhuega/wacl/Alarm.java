@@ -206,12 +206,14 @@ public class Alarm implements Serializable {
             resetPostponeData();
         }else {//si es de posponer.
             setPostponeData(horaActual,minutoActual);
+            Log.e("Datos posponer:", "Hora: " +hourPostponeTime+ " ,minuto: "+minutePostponeTime);
             int[] cuandoPoner = cuandoPonerLaAlarma(hourPostponeTime, minutePostponeTime, horaActual, minutoActual, diaActual, yearActual, -1, -1);
             if(repeat &&isRenableCode && isAPostpone) {
                 //si es de varios dias a la semana saber que dia la pospongo.
                 Calendar calendarProv = Calendar.getInstance();
                 int codeIndex = diaDeLaSemanaEnElQueEstamosConMiSistema(calendarProv.get(Calendar.DAY_OF_WEEK));
-                enableAlarmaOneTime(days[codeIndex], alarmManager, ctx, calendarProv, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
+                Log.e("DebugDificil", "Dia de la semana en el que estoy:"+codeIndex+"");//debug
+                enableAlarmaOneTime(days[codeIndex], alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
             }else {
                 enableAlarmaOneTime(id, alarmManager, ctx, calendar, hourPostponeTime, minutePostponeTime, cuandoPoner[0], cuandoPoner[1], 1);
             }
@@ -220,6 +222,7 @@ public class Alarm implements Serializable {
     }
 
     public void enableAlarmaOneTime(int code, AlarmManager alarmManager,Context ctx, Calendar calendar,int hora, int minuto, int diaAPoner, int yearAPoner, int action) {
+        Log.e("DebugDificil","Dentro de enableAlarmOneTime");//Debug
         calendar.set(Calendar.YEAR,yearAPoner);
         calendar.set(Calendar.DAY_OF_YEAR,diaAPoner);
         calendar.set(Calendar.HOUR_OF_DAY,hora);
@@ -231,6 +234,7 @@ public class Alarm implements Serializable {
         Log.e("miID",id+"");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx,code,goToEnable,PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
+        Log.e("DebugDificil","Fin de enableAlarmOneTime");
     }
 
     public void turnOFFAlarmSound(Context ctx, int code) {//ver casos

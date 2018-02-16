@@ -40,7 +40,12 @@ public class powerOffActivity extends AppCompatActivity {
         //Desactivo la alarma,
         RunningAlarm.turnOFFAlarmSound(this,code);
         //Activamos la alarma de nuevo
-        RunningAlarm.enableAlarmSound((AlarmManager)getSystemService(ALARM_SERVICE),this.getApplicationContext(),true,false);
+        if(!RunningAlarm.getRepeat()) {
+            RunningAlarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(), true, false);
+        }else {//alarmas que de dias a la semana
+            Log.e("DebugDificil","Dentro de else if action 4");//Debug
+            RunningAlarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(), true, true);
+        }
         finish();
     }
 }

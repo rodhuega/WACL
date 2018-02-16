@@ -74,10 +74,10 @@ public class addAlarmActivity extends AppCompatActivity {
             int [] repeatArray = repeatBoxToArray();
             Alarm newAlarm;
             if(option==1) {
-                newAlarm = new Alarm(myAlarms.getnID(), alarmPicker.getHour(), alarmPicker.getMinute(), 2, Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
+                newAlarm = new Alarm(myAlarms.getnID(), alarmPicker.getHour(), alarmPicker.getMinute(), 1, Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
                 myAlarms.addAlarm(newAlarm);
             }else {
-                newAlarm = new Alarm(editAlarm.getId(), alarmPicker.getHour(), alarmPicker.getMinute(), 2, Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
+                newAlarm = new Alarm(editAlarm.getId(), alarmPicker.getHour(), alarmPicker.getMinute(), 1, Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
                 myAlarms.replaceAlarm(editAlarm.getId(),newAlarm);
             }
             AlarmsAndSettings.saveAlarms(myAlarms,alarmsSavedFilePath);

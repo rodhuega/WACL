@@ -32,6 +32,7 @@ public class AlarmOperations extends BroadcastReceiver{
         serviceIntent.putExtra("action",action);
         serviceIntent.putExtra("alarmID",alarmID);
         serviceIntent.putExtra("code",code);
+        Log.e("DebugDificil","Fin de uso de AlarmOperations");
         context.startService(serviceIntent);
 
     }
