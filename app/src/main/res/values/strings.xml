@@ -16,4 +16,6 @@
     <string name="turnOff_text">Turn Off</string>
     <string name="postpone_text">Postpone</string>
     <string name="daysOrDate_text">Days or Date</string>
+    <string name="notificationPreRing_text">Notification before ringing</string>
+    <string name="minutes_text">minute/s</string>
 </resources>

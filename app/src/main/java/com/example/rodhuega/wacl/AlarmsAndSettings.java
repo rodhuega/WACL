@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 
 public class AlarmsAndSettings implements Serializable{
-    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings130.alc";
+    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings131.alc";
     public static final String TEMPORALALARMFILE = "/temporalAlarmFile.alm";
     public static final int DAYSALARMCONST = -100;
     //Muchos aspectos por cubrir
@@ -100,6 +100,12 @@ public class AlarmsAndSettings implements Serializable{
         }
     }
 
+    /**
+     * Metodo que se encarga de guardar todo en un fichero.
+     * @param myAl, AlarmsAndSettigns que se va a guardar
+     * @param path, String de la ruta donde se va a guardar
+     * @throws IOException
+     */
     public static void saveAlarms(AlarmsAndSettings myAl, String path) throws IOException {
         File f = new File(path);
         FileOutputStream f1 = new FileOutputStream(f);
@@ -109,6 +115,11 @@ public class AlarmsAndSettings implements Serializable{
         f2.close();
     }
 
+    /**
+     * Metodo que reemplaza una alarma por otra ya existente
+     * @param id, int, id de la alarma que va a ser reemplazada
+     * @param al, Alarm, nueva alarma
+     */
     public void replaceAlarm(int id, Alarm al) {
         boolean encontrado=false;
         for (int i = 0; i < alarms.size() && !encontrado; i++) {
@@ -119,11 +130,8 @@ public class AlarmsAndSettings implements Serializable{
         }
     }
 
-    //gets sets
-    /**
-     * Metodo get que devuelve todas las alarmas guardadas
-     * @return alarms, ArrayList<Alarm>
-     */
+    //gets
+
     public ArrayList<Alarm> getAlarms() {
         return alarms;
     }
@@ -132,10 +140,8 @@ public class AlarmsAndSettings implements Serializable{
         return nID;
     }
 
-    /**
-     * Metodo set que cambia las alarmas de la configuracion
-     * @param alarms, ArrayList<Alarm>
-     */
+    //sets
+
     public void setAlarms(ArrayList<Alarm> alarms) {
         this.alarms = alarms;
     }

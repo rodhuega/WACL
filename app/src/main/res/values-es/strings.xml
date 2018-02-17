@@ -17,4 +17,6 @@
     <string name="turnOff_text">Apagar</string>
     <string name="postpone_text">Posponer</string>
     <string name="daysOrDate_text">Dias o fecha</string>
+    <string name="notificationPreRing_text">Notificacion antes de que suene</string>
+    <string name="minutes_text">minuto/s</string>
 </resources>

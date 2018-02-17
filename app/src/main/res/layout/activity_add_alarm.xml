@@ -61,8 +61,7 @@
                 android:checked="true"
                 android:padding="10dp"
                 android:switchTextAppearance="@android:style/TextAppearance.Material.Menu"
-                android:text="Switch"
-                tools:text="@string/daysOrDate_text" />
+                android:text="@string/daysOrDate_text" />
 
             <LinearLayout
                 android:id="@+id/daysOrDateLayout"
@@ -242,11 +241,63 @@
 
             </LinearLayout>
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/postPoneLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Parte metereologica por hacer" />
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/postpone_text" />
+
+                <Spinner
+                    android:id="@+id/postponeSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/minutes_text" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/preNotificationLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/notificationPreRing_text" />
+
+                <Spinner
+                    android:id="@+id/notificationPreSoundSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/minutes_text" />
+            </LinearLayout>
         </LinearLayout>
+
     </ScrollView>
 
 </android.support.constraint.ConstraintLayout>

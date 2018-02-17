@@ -69,17 +69,23 @@ public class Alarm implements Serializable {
     private int minutePostponeTime;
 
     /**
+     * Int que representa cuanto tiempo antes sale la notificacion de que va a sonar la alarma. En caso de que su valor sea 0 no se muestra
+     */
+    private int timeNotificationPreAlarm;
+
+    /**
      * Uri que contiene la pista que se va a reproducir en la alarma.
      */
     private String RingtoneTrack;
 
     //Constructor para dias o siguiente hora
-    public Alarm(int id,int hour, int minute,int postponeTime, String RingtoneTrack, int[] days) {
+    public Alarm(int id,int hour, int minute,int postponeTime,int timeNotificationPreAlarm, String RingtoneTrack, int[] days) {
         this.id = id;
         this.enabled = true;
         this.hour =hour;
         this.minute=minute;
         this.postponeTime=postponeTime;
+        this.timeNotificationPreAlarm=timeNotificationPreAlarm;
         this.RingtoneTrack=RingtoneTrack;
         this.days=days;
         this.repeat = isRepeatEnabled();
@@ -88,13 +94,14 @@ public class Alarm implements Serializable {
         minutePostponeTime=minute;
     }
     //Constructor para fecha
-    public Alarm(int id,int hour, int minute, int postponeTime, String RingtoneTrack, Fecha dateToSound) {
+    public Alarm(int id,int hour, int minute, int postponeTime,int timeNotificationPreAlarm,String RingtoneTrack, Fecha dateToSound) {
         this.id = id;
         this.enabled = true;
         this.hour=hour;
         this.minute= minute;
         this.postponeTime=postponeTime;
-        this.postponeTime=postponeTime;
+        this.timeNotificationPreAlarm=timeNotificationPreAlarm;
+        this.RingtoneTrack=RingtoneTrack;
         this.dateToSound=dateToSound;
         this.repeat=false;
         hourPostponeTime=hour;
@@ -116,14 +123,14 @@ public class Alarm implements Serializable {
         return resultado;
     }
 
-    public boolean esBisiesto(int year) {
+    public static boolean esBisiesto(int year) {
         if(((year%4==0) && (year%100!=0)) || (year%400==0)) {
             return true;
         }
         return false;
     }
 
-    public int diaDeLaSemanaEnElQueEstamosConMiSistema(int dayOfWeek) {
+    public  int diaDeLaSemanaEnElQueEstamosConMiSistema(int dayOfWeek) {
         switch (dayOfWeek) {
             case Calendar.MONDAY:return 0;
             case Calendar.TUESDAY:return 1;
@@ -136,7 +143,7 @@ public class Alarm implements Serializable {
         }
     }
 
-    public int[] cuandoPonerLaAlarma(int hora, int minuto, int horaActual, int minutoActual,int diaActual, int yearActual,int dayOfWeek, int targetDay) {
+    public  int[] cuandoPonerLaAlarma(int hora, int minuto, int horaActual, int minutoActual,int diaActual, int yearActual,int dayOfWeek, int targetDay) {
         //Array que contiene que dia poner la alarma, posicion 0 del array dia, 1 año
         int[] resultado = new int[2];
         resultado[1]=yearActual;
@@ -181,8 +188,7 @@ public class Alarm implements Serializable {
         int yearActual= calendar.get(Calendar.YEAR);
         if(!isAPostpone) {//si es la alarma normal
             if (dateToSound != null) {//Si es una fecha,
-                // hace falta verificar que se ha metido una fecha futuroa y tal, si no se cumple quiza tirar un throw
-
+                enableAlarmaOneTime(id, alarmManager, ctx, calendar, hour, minute, dateToSound.getDia(),dateToSound.getAno() , 1);
             } else if (!repeat && dateToSound == null) {//en caso de que solo se ponga para un dia(fecha mas cercana)
                 //Ver si se pone para hoy o para mañana
                 int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, -1, -1);
@@ -343,6 +349,10 @@ public class Alarm implements Serializable {
         return minutePostponeTime;
     }
 
+    public int getTimeNotificationPreAlarm() {
+        return timeNotificationPreAlarm;
+    }
+
     //Sets
 
 
@@ -388,5 +398,9 @@ public class Alarm implements Serializable {
 
     public void setMinutePostponeTime(int minutePostponeTime) {
         this.minutePostponeTime = minutePostponeTime;
+    }
+
+    public void setTimeNotificationPreAlarm(int timeNotificationPreAlarm) {
+        this.timeNotificationPreAlarm = timeNotificationPreAlarm;
     }
 }
