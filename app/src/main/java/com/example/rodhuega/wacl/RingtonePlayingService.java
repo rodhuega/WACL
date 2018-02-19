@@ -72,7 +72,7 @@ public class RingtonePlayingService extends Service{
                 //botones de notificacion
                 //Accion de apagar la alarma
                 Intent powerOffButton = new Intent(this, RingtonePlayingService.class);
-                powerOffButton.putExtra("action", 3);
+                powerOffButton.putExtra("action", 2);
                 powerOffButton.putExtra("alarmID", alarmID);
                 powerOffButton.putExtra("code",code);
                 PendingIntent powerOffButtonPending = PendingIntent.getService(getApplicationContext(), code, powerOffButton, PendingIntent.FLAG_ONE_SHOT);
@@ -94,7 +94,7 @@ public class RingtonePlayingService extends Service{
                 notification.setContentIntent(pendingIntent);
                 nm = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                 nm.notify(5163213, notification.build());
-            } else if (action == 2 || action==3) {//Parar la alarma desde stio activity
+            } else if (action == 2 ) {//Parar la alarma
                 Log.e("Seguimiento", "Entre id:" + alarmID);
                 media_song.stop();
                 media_song.reset();
@@ -106,8 +106,7 @@ public class RingtonePlayingService extends Service{
                 nm.cancelAll();
             } else if (action == 4) {//posponer
                 nm.cancelAll();
-                //Desactivo la alarma,
-                //alarm.turnOFFAlarmSound(this,code);
+                //Desactivo la alarma
                 media_song.stop();
                 media_song.reset();
                 alarm.setEnabled(true);

@@ -28,11 +28,13 @@
             android:name=".AlarmOperations"
             android:enabled="true" />
 
-        <service android:name=".RingtonePlayingService"
-            android:enabled="true"></service>
+        <service
+            android:name=".RingtonePlayingService"
+            android:enabled="true" />
 
-
-        <activity android:name=".powerOffActivity"></activity>
+        <activity android:name=".powerOffActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".AboutActivity"></activity>
     </application>
 
 </manifest>

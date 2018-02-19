@@ -3,7 +3,7 @@ package com.example.rodhuega.wacl.model;
 import java.io.Serializable;
 
 /**
- * Created by pillo on 03/02/2018.
+ * Clase que representa una fecha.
  */
 
 public class Fecha implements Serializable {
