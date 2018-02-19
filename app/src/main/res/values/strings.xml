@@ -19,4 +19,5 @@
     <string name="notificationPreRing_text">Notification before ringing</string>
     <string name="minutes_text">minute/s</string>
     <string name="alarmWillSound_text">Alarm is ringing at</string>
+    <string name="action_about_text">About</string>
 </resources>

@@ -63,8 +63,6 @@ public class MainActivity extends AppCompatActivity {
         alarmsLayout = (LinearLayout) findViewById(R.id.alarmsLayout);
         confAndAlarms=loadAlarms();
         drawAllAlarms();
-
-
     }
 
     @Override
@@ -83,9 +81,12 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent goToSettings = new Intent(this,SettingsActivity.class);
+            startActivity(goToSettings);
+        }else if(id == R.id.action_about) {
+            Intent goToAbout = new Intent(this,AboutActivity.class);
+            startActivity(goToAbout);
         }
-
         return super.onOptionsItemSelected(item);
     }
 
