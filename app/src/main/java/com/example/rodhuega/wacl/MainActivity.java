@@ -1,12 +1,10 @@
 package com.example.rodhuega.wacl;
 
 import android.app.AlarmManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,13 +16,11 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
-import java.io.File;
-import java.io.FileInputStream;
+import com.example.rodhuega.wacl.model.Alarm;
+import com.example.rodhuega.wacl.model.AlarmsAndSettings;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -170,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 if(finalAlarm.getEnabled()) { //significa que se va a desactivar
                     finalAlarm.setEnabled(false);
                     //ir a metodo que apaga la alarma
-                    finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE),finalctx);
+                    finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE),finalctx,false,-1);
                     saveAlarms(confAndAlarms,alarmsSavedFilePath);
                 }else {//signifca que se va a activar
                     finalAlarm.setEnabled(true);
@@ -189,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.e("WIP", "pulsado edit de alarma");
-                finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE), finalctx);
+                finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE), finalctx,false,-1);
                 try {
                     finalAlarm.saveAlarm(finalctx.getApplicationContext().getFilesDir().getPath().toString() + AlarmsAndSettings.TEMPORALALARMFILE);
                 }catch (IOException e) {
@@ -212,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("WIP", "pulsado delete de alarma");
                 ////////////faltaria hacer que no suene
                 //desactivar borrar Alarma del arrayList
-                finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE), finalctx);
+                finalAlarm.cancelAlarm((AlarmManager)getSystemService(ALARM_SERVICE), finalctx,false,-1);
                 confAndAlarms.deleteAlarm(finalAlarm.getId());
                 ///Reguardar la informacion del fichero
                 saveAlarms(confAndAlarms,alarmsSavedFilePath);

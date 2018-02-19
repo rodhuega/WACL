@@ -1,11 +1,12 @@
-package com.example.rodhuega.wacl;
+package com.example.rodhuega.wacl.model;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
+
+import com.example.rodhuega.wacl.AlarmOperations;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +22,6 @@ import java.util.Calendar;
  */
 
 public class Alarm implements Serializable {
-    // Falta toda la parte meteoreologica
 
     /**
      * Entero que representa la hora
@@ -109,7 +109,10 @@ public class Alarm implements Serializable {
         //quiza haga falta hacer new y pasar el array de days a false.
     }
 
-
+    /**
+     * Metodo que comprueba si se trata de una alarma de varios dias a la semana o no.
+     * @return resultado, boolean true en caso afirmativo
+     */
     public boolean isRepeatEnabled() {
         boolean resultado = false;
         for(int i =0; i< days.length; i++) {
@@ -123,6 +126,11 @@ public class Alarm implements Serializable {
         return resultado;
     }
 
+    /**
+     * Metodo usado para saber si un año es bisiesto
+     * @param year, int del año a comprobar
+     * @return resultado, boolean true en caso afirmativo
+     */
     public static boolean esBisiesto(int year) {
         if(((year%4==0) && (year%100!=0)) || (year%400==0)) {
             return true;
@@ -130,7 +138,12 @@ public class Alarm implements Serializable {
         return false;
     }
 
-    public  int diaDeLaSemanaEnElQueEstamosConMiSistema(int dayOfWeek) {
+    /**
+     * Metodo que pasa del sistema de represencaion de la Clase Calendar a mi sistema de representacion
+     * @param dayOfWeek, int dia de representacion en clase Calendar
+     * @return int, valor en mi sistema de representacion
+     */
+    public static int diaDeLaSemanaEnElQueEstamosConMiSistema(int dayOfWeek) {
         switch (dayOfWeek) {
             case Calendar.MONDAY:return 0;
             case Calendar.TUESDAY:return 1;
@@ -143,6 +156,18 @@ public class Alarm implements Serializable {
         }
     }
 
+    /**
+     * Metodo que se encarga de calcular cuando hay que poner una alarma de un dia o de varios dias ala semana
+     * @param hora, int hora que tiene sonar
+     * @param minuto, int minuto que tiene que sonar
+     * @param horaActual, int, hora actual
+     * @param minutoActual, int, minuto actual
+     * @param diaActual, int dia actual
+     * @param yearActual, int año actual
+     * @param dayOfWeek, int dia que es en la semana, -1 si day igual
+     * @param targetDay, int dia que tiene que sonar, -1 si da igual
+     * @return resultado, int[2] posicion 0 dia, posicion 1 año
+     */
     public  int[] cuandoPonerLaAlarma(int hora, int minuto, int horaActual, int minutoActual,int diaActual, int yearActual,int dayOfWeek, int targetDay) {
         //Array que contiene que dia poner la alarma, posicion 0 del array dia, 1 año
         int[] resultado = new int[2];
@@ -180,34 +205,63 @@ public class Alarm implements Serializable {
         return resultado;
     }
 
+    /**
+     * Metodo que activa la alarma y su PreNotificacion
+     * @param alarmManager, AlarmManager
+     * @param ctx, Context
+     * @param isAPostpone, boolean true si es que se pospone
+     * @param isRenableCode, boolean true si es que reactiva la alarma para la semana que viene.
+     */
     public void enableAlarmSound(AlarmManager alarmManager, Context ctx, boolean isAPostpone, boolean isRenableCode) {
         Calendar calendar = Calendar.getInstance();
         int horaActual=calendar.get(Calendar.HOUR_OF_DAY);
         int minutoActual=calendar.get(Calendar.MINUTE);
         int diaActual= calendar.get(Calendar.DAY_OF_YEAR);
         int yearActual= calendar.get(Calendar.YEAR);
+        //Distintos casos
         if(!isAPostpone) {//si es la alarma normal
-            if (dateToSound != null) {//Si es una fecha,
+            if (dateToSound != null) {//Si es una fecha
+                Calendar calendarProv = Calendar.getInstance();
+                //Notificacion PreAlarma
+                int preSoundCode = Integer.parseInt(AlarmsAndSettings.PRENOTCONST+""+id+""+9);
+                int [] cuandoPonerNotificacion = getPresoundTime(dateToSound.getAno(),dateToSound.getDia(),hour,minute);
+                enableAlarmaOneTime(preSoundCode, alarmManager, ctx, calendarProv, cuandoPonerNotificacion[2], cuandoPonerNotificacion[3], cuandoPonerNotificacion[1], cuandoPonerNotificacion[0], 5);
+                //Alarm
                 enableAlarmaOneTime(id, alarmManager, ctx, calendar, hour, minute, dateToSound.getDia(),dateToSound.getAno() , 1);
             } else if (!repeat && dateToSound == null) {//en caso de que solo se ponga para un dia(fecha mas cercana)
+                Calendar calendarProv = Calendar.getInstance();
                 //Ver si se pone para hoy o para mañana
                 int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, -1, -1);
+                //Notificacion
+                int preSoundCode =Integer.parseInt(AlarmsAndSettings.PRENOTCONST+""+id+""+9);
+                int [] cuandoPonerNotificacion = getPresoundTime(cuandoPoner[1],cuandoPoner[0],hour,minute);
+                enableAlarmaOneTime(preSoundCode, alarmManager, ctx, calendarProv, cuandoPonerNotificacion[2], cuandoPonerNotificacion[3], cuandoPonerNotificacion[1], cuandoPonerNotificacion[0], 5);
+                //Activar Alarma
                 enableAlarmaOneTime(id, alarmManager, ctx, calendar, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
-
             } else if(!isRenableCode) {//en el caso de que se use alarma para diferentes dias de la semana
                 //poner la alarma para esos dias con codigo que esta dentro del array Days
                 for (int i = 0; i < days.length; i++) {
                     if (days[i] < 0) {//si ese dia esta habilitado, se pone la alarma para ese dia.
-                        //WIP////////////////////////////////////
                         Calendar calendarProv = Calendar.getInstance();
                         int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, calendarProv.get(Calendar.DAY_OF_WEEK), i);
-                        enableAlarmaOneTime(days[i], alarmManager, ctx, calendar, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
+                        //Notificacion
+                        int preSoundCode =Integer.parseInt(AlarmsAndSettings.PRENOTCONST+""+id+""+i);
+                        int [] cuandoPonerNotificacion = getPresoundTime(cuandoPoner[1],cuandoPoner[0],hour,minute);
+                        enableAlarmaOneTime(preSoundCode, alarmManager, ctx, calendarProv, cuandoPonerNotificacion[2], cuandoPonerNotificacion[3], cuandoPonerNotificacion[1], cuandoPonerNotificacion[0], 5);
+                        //Alarma
+                        enableAlarmaOneTime(days[i], alarmManager, ctx, calendarProv, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
                     }
                 }
             }else if(!isAPostpone) {//si es para poner la alarma la siguiente semana
-                int codeIndex = diaDeLaSemanaEnElQueEstamosConMiSistema(calendar.get(Calendar.DAY_OF_WEEK));
+                Calendar calendarProv = Calendar.getInstance();
+                int codeIndex = diaDeLaSemanaEnElQueEstamosConMiSistema(calendar.get(Calendar.DAY_OF_WEEK));//Conseguir que dia se va a volver a activar
                 int[] cuandoPoner = cuandoPonerLaAlarma(hour, minute, horaActual, minutoActual, diaActual, yearActual, calendar.get(Calendar.DAY_OF_WEEK), codeIndex);
-                enableAlarmaOneTime(days[codeIndex], alarmManager, ctx, calendar, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
+                //Notificacion
+                int preSoundCode =Integer.parseInt("-2"+(codeIndex+"").substring(2));
+                int [] cuandoPonerNotificacion = getPresoundTime(cuandoPoner[1],cuandoPoner[0],hour,minute);
+                enableAlarmaOneTime(preSoundCode, alarmManager, ctx, calendarProv, cuandoPonerNotificacion[2], cuandoPonerNotificacion[3], cuandoPonerNotificacion[1], cuandoPonerNotificacion[0], 5);
+                //Alarma
+                enableAlarmaOneTime(days[codeIndex], alarmManager, ctx, calendarProv, hour, minute, cuandoPoner[0], cuandoPoner[1], 1);
             }
             resetPostponeData();
         }else {//si es de posponer.
@@ -227,12 +281,26 @@ public class Alarm implements Serializable {
         }
     }
 
+    /**
+     * Metodo que hace que se produzca una accion cuando se programa, como que suene la alarma o que se envie la notificacion de que va a sonar en breve
+     * @param code, int, code identificativo de la alarma
+     * @param alarmManager, AlarmManager
+     * @param ctx, Context
+     * @param calendar, Calendar
+     * @param hora, int hora a la que se programa
+     * @param minuto, int minuto al que se programa
+     * @param diaAPoner, int dia que se programa
+     * @param yearAPoner, int año que se programa
+     * @param action, int accion que se va a producir cuando se programe
+     */
     public void enableAlarmaOneTime(int code, AlarmManager alarmManager,Context ctx, Calendar calendar,int hora, int minuto, int diaAPoner, int yearAPoner, int action) {
         Log.e("DebugDificil","Dentro de enableAlarmOneTime");//Debug
+        //Cuando tiene que producirse la accion
         calendar.set(Calendar.YEAR,yearAPoner);
         calendar.set(Calendar.DAY_OF_YEAR,diaAPoner);
         calendar.set(Calendar.HOUR_OF_DAY,hora);
         calendar.set(Calendar.MINUTE,minuto);
+        //Creacion del intent y envio de datos.
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
         goToEnable.putExtra("action",action);
         goToEnable.putExtra("alarmID", id);
@@ -243,7 +311,12 @@ public class Alarm implements Serializable {
         Log.e("DebugDificil","Fin de enableAlarmOneTime");
     }
 
-    public void turnOFFAlarmSound(Context ctx, int code) {//ver casos
+    /**
+     * Metodo que apaga una alarma
+     * @param ctx, Context
+     * @param code, int codigo identificativo de la alarma
+     */
+    public void turnOFFAlarmSound(Context ctx, int code) {///Actualmente carece de utilidad
         Intent goToDisable = new Intent(ctx, AlarmOperations.class);
         goToDisable.putExtra("action",2);
         goToDisable.putExtra("alarmID", id);
@@ -251,21 +324,38 @@ public class Alarm implements Serializable {
         ctx.sendBroadcast(goToDisable);
     }
 
-    public void cancelAlarm(AlarmManager alarmManager, Context ctx) {//ver casos
+    /**
+     * Metodo que se encarga de cancelar una alarma para que no suene
+     * @param alarmManager
+     * @param ctx
+     * @param isOnlyForToday, boolean que solo se usa si es una alarma de varios dias a la semana. Se pone a true si es para apagarla desde preNotificacion, en cualquier otro caso a false, tambien a false en caso de no usarse
+     * @param day, int. Parametro que solo se usa si isOnlyForToday es true. En caso de que se use lleva el dia en mi sistema de refencia. En caso de no usarse un -1
+     */
+    public void cancelAlarm(AlarmManager alarmManager, Context ctx, boolean isOnlyForToday, int day) {//ver casos
         Intent goToEnable = new Intent(ctx, AlarmOperations.class);
         if(!repeat) {//alarma de fecha o de la hora siguiente mas cercana
             PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, id, goToEnable, PendingIntent.FLAG_UPDATE_CURRENT);
             alarmManager.cancel(pendingIntent);
         }else {//para alarma que se repite todas las semanas
-            for (int i=0;i<days.length;i++) {
-                if(days[i]<0) {//si ese dia esta habilitado, se desactiva la alarma
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, days[i], goToEnable, PendingIntent.FLAG_UPDATE_CURRENT);
-                    alarmManager.cancel(pendingIntent);
+            if(!isOnlyForToday) {
+                for (int i = 0; i < days.length; i++) {
+                    if (days[i] < 0) {//si ese dia esta habilitado, se desactiva la alarma
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, days[i], goToEnable, PendingIntent.FLAG_UPDATE_CURRENT);
+                        alarmManager.cancel(pendingIntent);
+                    }
                 }
+            }else {
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, days[day], goToEnable, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarmManager.cancel(pendingIntent);
             }
         }
     }
 
+    /**
+     * Metodo que guarda una alarma en un fichero
+     * @param path, String ruta donde se va a guardar.
+     * @throws IOException
+     */
     public void saveAlarm(String path) throws IOException {
         File f = new File(path);
         FileOutputStream f1 = new FileOutputStream(f);
@@ -275,6 +365,13 @@ public class Alarm implements Serializable {
         f2.close();
     }
 
+    /**
+     * Metodo que carga una alarma de un fichero
+     * @param path, String, ruta donde esta guardado el fichero
+     * @return resultado, Alarm.
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public static Alarm loadAlarm(String path) throws IOException, ClassNotFoundException {
         File f = new File(path);
         FileInputStream f1 = new FileInputStream(f);
@@ -285,21 +382,64 @@ public class Alarm implements Serializable {
         return resultado;
     }
 
+    /**
+     * Metodo que pone los valores adecuados  en caso de que se posponga la alarma
+     * @param horaActual, int hora actual
+     * @param minutoActual, int minuto actual
+     */
     public void setPostponeData(int horaActual, int minutoActual) {
+        //Inicializacion de los valores normales
         minutePostponeTime=minutoActual+postponeTime;
         hourPostponeTime=horaActual;
-        if(minutePostponeTime>=60) {
+        if(minutePostponeTime>=60) {//si se pasa a la siguiente hora//Casos especiales
             minutePostponeTime-=60;
             hourPostponeTime++;
-            if(hourPostponeTime>=24) {
+            if(hourPostponeTime>=24) {//si se pasa al siguiente dia.
                 hourPostponeTime -= 24;
             }
         }
     }
 
+    /**
+     * Metodo que resetea los valores de cuando se va a posponer la alarma para la siguiente vez que suene.
+     */
     public void resetPostponeData() {
         hourPostponeTime=hour;
         minutePostponeTime=minute;
+    }
+
+    /**
+     * Metodo que devuelve un array de dimension 4 que indica año, dia, hora y minuto en la que saldra la notificacion
+     * @param ano, int año que va a sonar la alarma
+     * @param dia, int dia que va a sonar la alarma
+     * @param hora, int hora que va a sonar la alarma
+     * @param minuto, int minuto que va a sonar la alarma
+     * @return resultado, int[4]
+     */
+    public int[] getPresoundTime(int ano, int dia, int hora,int minuto) {
+        //Inicializacion de valores normales.
+        int[] resultado = new int[4];
+        resultado[0]=ano;
+        resultado[1]=dia;
+        resultado[2]=hora;
+        resultado[3] = minuto - timeNotificationPreAlarm;
+        if(resultado[3]<0) {//si hay que pasar a la hora de antes.//Casos excepcionales
+            resultado[3]+=60;
+            resultado[2]-=-1;
+            if(resultado[2]<0) {//si hay que pasar al dia de antes
+                resultado[2]+=24;
+                resultado[1]-=1;
+                if(resultado[1]<1) {//si hay que pasar al año anterior
+                    resultado[0]-=1;
+                    if(esBisiesto(resultado[0])) {//en caso de que sea bisiesto, el dia es el 366
+                        resultado[1]=366;
+                    }else {//en caso de no ser bisiesto el dia es el 365
+                        resultado[1]=365;
+                    }
+                }
+            }
+        }
+        return resultado;
     }
 
     //Gets
@@ -354,7 +494,6 @@ public class Alarm implements Serializable {
     }
 
     //Sets
-
 
     public void setDays(int[] days) {
         this.days = days;

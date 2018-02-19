@@ -1,4 +1,4 @@
-package com.example.rodhuega.wacl;
+package com.example.rodhuega.wacl.model;
 
 import java.io.Serializable;
 

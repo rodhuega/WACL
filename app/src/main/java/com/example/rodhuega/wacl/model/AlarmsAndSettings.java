@@ -1,4 +1,4 @@
-package com.example.rodhuega.wacl;
+package com.example.rodhuega.wacl.model;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,13 +10,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Created by pillo on 03/02/2018.
+ * Clase que representa todas las alarmas que hay y la configuracion por defecto de ellas. Tambien tiene metodos para cargar el fichero y guardarlo ademas de constantes de nombre de ficheros.
  */
 
 public class AlarmsAndSettings implements Serializable{
-    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings131.alc";
+    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings133.alc";
     public static final String TEMPORALALARMFILE = "/temporalAlarmFile.alm";
     public static final int DAYSALARMCONST = -100;
+    public static final int PRENOTCONST=-200;//si se trata de alarmas de un dia o de fecha llevan un 9 como ultimo digito
     //Muchos aspectos por cubrir
     private ArrayList<Alarm> alarms;
 
@@ -38,7 +39,7 @@ public class AlarmsAndSettings implements Serializable{
 
     /**
      * Metodo que añade una alarma a la configuracion
-     * @param a, Alarm
+     * @param a, Alarm a añadir
      */
     public void addAlarm(Alarm a) {
         nID+=1;
@@ -47,9 +48,9 @@ public class AlarmsAndSettings implements Serializable{
 
     /**
      * Metodo que elimina la alarma que coincide con la id que se le ha pasado
-     * @param id, long
+     * @param id, int de la alarma a eliminar
      */
-    public void deleteAlarm(long id) {
+    public void deleteAlarm(int id) {
         boolean isDeleted = false;
         for(int i = 0; i<alarms.size() && !isDeleted;i++) {
             if(alarms.get(i).getId()==id){
@@ -61,7 +62,7 @@ public class AlarmsAndSettings implements Serializable{
 
     /**
      * Metodo que busca una alarma con la id proporcionada
-     * @param id, long
+     * @param id, int
      * @return resultado, Alarm
      */
     public Alarm searchAlarmID(int id) {

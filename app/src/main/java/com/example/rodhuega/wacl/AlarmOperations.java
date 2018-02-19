@@ -14,11 +14,10 @@ import android.util.Log;
 import java.io.IOException;
 
 /**
- * Created by pillo on 04/02/2018.
+ * Clase que se encarga de ejecutar el servicio encargado de gestionan la alarma cuando hace falta.
  */
 
 public class AlarmOperations extends BroadcastReceiver{
-    private MediaPlayer mediaSound;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -27,7 +26,7 @@ public class AlarmOperations extends BroadcastReceiver{
         int alarmID = intent.getExtras().getInt("alarmID");
         int code =  intent.getExtras().getInt("code");
         Log.e("SeguimientoOP", ": action: " +action +", alarmID: "+ alarmID+", code: "+ code);
-        //Crear intent y servicio y enviar esos datos
+        //Crear intent y servicio,enviar esos datos e iniciar el servicio.
         Intent serviceIntent = new Intent(context,RingtonePlayingService.class);
         serviceIntent.putExtra("action",action);
         serviceIntent.putExtra("alarmID",alarmID);

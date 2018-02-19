@@ -18,4 +18,5 @@
     <string name="daysOrDate_text">Days or Date</string>
     <string name="notificationPreRing_text">Notification before ringing</string>
     <string name="minutes_text">minute/s</string>
+    <string name="alarmWillSound_text">Alarm is ringing at</string>
 </resources>

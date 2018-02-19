@@ -19,4 +19,5 @@
     <string name="daysOrDate_text">Dias o fecha</string>
     <string name="notificationPreRing_text">Notificacion antes de que suene</string>
     <string name="minutes_text">minuto/s</string>
+    <string name="alarmWillSound_text">La Alarma sonará a las</string>
 </resources>

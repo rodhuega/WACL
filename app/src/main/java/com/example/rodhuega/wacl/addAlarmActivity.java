@@ -16,6 +16,10 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TimePicker;
 
+import com.example.rodhuega.wacl.model.Alarm;
+import com.example.rodhuega.wacl.model.AlarmsAndSettings;
+import com.example.rodhuega.wacl.model.Fecha;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
