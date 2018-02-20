@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         });
         //Cargar todas las alarmas guardadas a traves de un fichero
         alarmsLayout = (LinearLayout) findViewById(R.id.alarmsLayout);
-        confAndAlarms=loadAlarms();
+        confAndAlarms=loadAlarms(alarmsSavedFilePath);
         drawAllAlarms();
     }
 
@@ -91,8 +91,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void drawAllAlarms() {
-        for (Alarm al: confAndAlarms.getAlarms()) {
-            drawAlarm(al);
+        if(confAndAlarms.getAlarms().size()>0) {
+            for (Alarm al : confAndAlarms.getAlarms()) {
+                drawAlarm(al);
+            }
         }
     }
     /**
@@ -249,24 +251,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        confAndAlarms=loadAlarms();
+        confAndAlarms=loadAlarms(alarmsSavedFilePath);
         alarmsLayout.removeAllViews();
         drawAllAlarms();
     }
 
-    public AlarmsAndSettings loadAlarms() {
+    public static AlarmsAndSettings loadAlarms(String path) {
         AlarmsAndSettings resultado = null;
         try {
-            resultado = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
+            resultado = AlarmsAndSettings.loadAlarms(path);
         }catch (IOException | ClassNotFoundException ioe) {
             Log.e("ERRRRR", ioe.getMessage());
         }
         return resultado;
     }
 
-    public static void saveAlarms(AlarmsAndSettings confAndAlarms, String alarmsSavedFilePath) {
+    public static void saveAlarms(AlarmsAndSettings confAndAlarms, String path) {
         try {
-            AlarmsAndSettings.saveAlarms(confAndAlarms,alarmsSavedFilePath);
+            AlarmsAndSettings.saveAlarms(confAndAlarms,path);
         }catch (IOException e) {
             Log.e("ER","Error mainActivity"+e.getMessage());
         }

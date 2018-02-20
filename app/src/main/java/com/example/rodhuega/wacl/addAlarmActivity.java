@@ -77,8 +77,6 @@ public class addAlarmActivity extends AppCompatActivity {
         ArrayAdapter<Integer> adapterMinutes = new ArrayAdapter<Integer>(this,android.R.layout.simple_spinner_item,opcionesMinutos);
         notificationPreSoundSpinner.setAdapter(adapterMinutes);
         postponeSpinner.setAdapter(adapterMinutes);
-        notificationPreSoundSpinner.setSelection(0);
-        postponeSpinner.setSelection(0);
         //Switch que cambia segun si va a ser para fecha o para alarma normal o de varios dias
         daysOrDateSwitch = (Switch) findViewById(R.id.daysOrDateSwitch);
         daysOrDateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -94,7 +92,10 @@ public class addAlarmActivity extends AppCompatActivity {
         });
         try {//Cargamos todas las alarmas
             myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
-            if (option == 2) {
+            //Mostrar por defecto configuracion
+            notificationPreSoundSpinner.setSelection(opcionesMinutos.indexOf(myAlarms.getSettings().getTimeNotificacionPreAlarm()));
+            postponeSpinner.setSelection(opcionesMinutos.indexOf(myAlarms.getSettings().getPostponeTime()));
+            if (option == 2) {//caso de que editemos la alarma
                 //Cargamos la alarma a editar.
                 editAlarm = Alarm.loadAlarm(getApplicationContext().getFilesDir().getPath().toString() + AlarmsAndSettings.TEMPORALALARMFILE);
                 //Mostrar hora anteriormente establecida

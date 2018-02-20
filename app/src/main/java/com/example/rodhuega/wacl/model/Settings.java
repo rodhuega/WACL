@@ -1,10 +1,12 @@
 package com.example.rodhuega.wacl.model;
 
+import java.io.Serializable;
+
 /**
  * Clase que contiene la configuracion por defecto de las alarmas
  */
 
-public class Settings {
+public class Settings implements Serializable{
     private int postponeTime, timeNotificacionPreAlarm;
     private String ringtoneTrack;
 
