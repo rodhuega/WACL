@@ -21,4 +21,6 @@
     <string name="minutes_text">minuto/s</string>
     <string name="alarmWillSound_text">La Alarma sonará a las</string>
     <string name="action_about_text">Acerca de</string>
+    <string name="ringtone_text">Tone</string>
+    <string name="addRingtone_text">Añadir Tono</string>
 </resources>

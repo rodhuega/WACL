@@ -35,6 +35,8 @@
         <activity android:name=".powerOffActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".AboutActivity"></activity>
+
+
     </application>
 
 </manifest>

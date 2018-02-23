@@ -14,10 +14,11 @@ import java.util.ArrayList;
  */
 
 public class AlarmsAndSettings implements Serializable{
-    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings137.alc";
+    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings138.alc";
     public static final String TEMPORALALARMFILE = "/temporalAlarmFile.alm";
     public static final int DAYSALARMCONST = -100;
     public static final int PRENOTCONST=-200;//si se trata de alarmas de un dia o de fecha llevan un 9 como ultimo digito
+    public static final int CONSTADDRINGTONE = 8888;
     //Muchos aspectos por cubrir
     private ArrayList<Alarm> alarms;
 
@@ -30,7 +31,7 @@ public class AlarmsAndSettings implements Serializable{
     public AlarmsAndSettings() {
         nID=0;
         alarms = new ArrayList<Alarm>();
-        settings= new Settings(1,1, android.provider.Settings.System.DEFAULT_RINGTONE_URI.toString());
+        settings= new Settings(1,1);
     }
 
     //Constructor para cargar la info de otras sesiones de uso de la app

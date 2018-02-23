@@ -105,8 +105,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Parte de eleccion de tono, WIP" />
+                    android:text="@string/ringtone_text" />
+
+                <Spinner
+                    android:id="@+id/ringtoneSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
             </LinearLayout>
+
+            <Button
+                android:id="@+id/addRingtoneButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="addRingtoneOnClick"
+                android:text="@string/addRingtone_text" />
         </LinearLayout>
     </ScrollView>
 </android.support.constraint.ConstraintLayout>
