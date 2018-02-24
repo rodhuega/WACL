@@ -25,4 +25,8 @@
     <string name="addRingtone_text">Añadir Tono</string>
     <string name="permisionGranted_text">Permiso concedido</string>
     <string name="permisionDenied_text">Permiso denegado</string>
+    <string name="defaultConfiguration_text">Configuración Predeterminida</string>
+    <string name="setADefaultLocation_text">Configurar localizacion predeterminada</string>
+    <string name="noSelectedPlace_text">Ningun Lugar seleccionado</string>
+    <string name="setALocation_text">Configurar localización</string>
 </resources>

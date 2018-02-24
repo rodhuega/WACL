@@ -78,8 +78,10 @@ public class Alarm implements Serializable {
      */
     private Ringtone RingtoneTrack;
 
+    private LocationPS location;
+
     //Constructor para dias o siguiente hora
-    public Alarm(int id,int hour, int minute,int postponeTime,int timeNotificationPreAlarm, Ringtone RingtoneTrack, int[] days) {
+    public Alarm(int id,int hour, int minute,int postponeTime,int timeNotificationPreAlarm, Ringtone RingtoneTrack, int[] days,LocationPS location) {
         this.id = id;
         this.enabled = true;
         this.hour =hour;
@@ -92,9 +94,11 @@ public class Alarm implements Serializable {
         this.dateToSound=null;
         hourPostponeTime=hour;
         minutePostponeTime=minute;
+        //Tema para metereologia
+        this.location=location;
     }
     //Constructor para fecha
-    public Alarm(int id,int hour, int minute, int postponeTime,int timeNotificationPreAlarm,Ringtone RingtoneTrack, Fecha dateToSound) {
+    public Alarm(int id,int hour, int minute, int postponeTime,int timeNotificationPreAlarm,Ringtone RingtoneTrack, Fecha dateToSound,LocationPS location) {
         this.id = id;
         this.enabled = true;
         this.hour=hour;
@@ -106,6 +110,8 @@ public class Alarm implements Serializable {
         this.repeat=false;
         hourPostponeTime=hour;
         minutePostponeTime=minute;
+        //Tema para metereologia
+        this.location=location;
         //quiza haga falta hacer new y pasar el array de days a false.
     }
 
@@ -493,6 +499,10 @@ public class Alarm implements Serializable {
         return timeNotificationPreAlarm;
     }
 
+    public LocationPS getLocation() {
+        return location;
+    }
+
     //Sets
 
     public void setDays(int[] days) {
@@ -541,5 +551,9 @@ public class Alarm implements Serializable {
 
     public void setTimeNotificationPreAlarm(int timeNotificationPreAlarm) {
         this.timeNotificationPreAlarm = timeNotificationPreAlarm;
+    }
+
+    public void setLocation(LocationPS location) {
+        this.location = location;
     }
 }

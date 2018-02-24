@@ -17,13 +17,19 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.rodhuega.wacl.model.Alarm;
 import com.example.rodhuega.wacl.model.AlarmsAndSettings;
 import com.example.rodhuega.wacl.model.Fecha;
+import com.example.rodhuega.wacl.model.LocationPS;
 import com.example.rodhuega.wacl.model.Ringtone;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
@@ -42,6 +48,8 @@ public class addAlarmActivity extends AppCompatActivity {
 
     private int option;
 
+    private LocationPS locationForAlarm;
+
     private Alarm editAlarm;
 
     private TimePicker alarmPicker;
@@ -55,12 +63,15 @@ public class addAlarmActivity extends AppCompatActivity {
     private ArrayList<Integer> opcionesMinutos;
     private ArrayList<String>  ringtones;
     private ArrayAdapter<String> adapterRingtones;
+    private TextView locationTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_alarm);
 
+        locationForAlarm=null;
+        locationTextView= (TextView) findViewById(R.id.locationTextView);
         //Recuperar el valor de option pasado, para saber si hay que editar o añadir una nueva
         option=this.getIntent().getExtras().getInt("optionAddAlarm");
         alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+AlarmsAndSettings.NOMBREDELFICHERODECONF;//directorio donde se guarda toda la configuracion
@@ -113,6 +124,8 @@ public class addAlarmActivity extends AppCompatActivity {
             adapterRingtones = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,ringtones);
             ringtoneSpinner.setAdapter(adapterRingtones);
             ringtoneSpinner.setSelection(ringtones.indexOf(myAlarms.getSettings().getRingtoneTrack().getName()));
+            //Localizacion por defecto
+            locationTextView.setText(myAlarms.getSettings().getDefaultLocation().getAddress());
             if (option == 2) {//caso de que editemos la alarma
                 //Cargamos la alarma a editar.
                 editAlarm = Alarm.loadAlarm(getApplicationContext().getFilesDir().getPath().toString() + AlarmsAndSettings.TEMPORALALARMFILE);
@@ -123,6 +136,8 @@ public class addAlarmActivity extends AppCompatActivity {
                 postponeSpinner.setSelection(opcionesMinutos.indexOf(editAlarm.getPostponeTime()));
                 notificationPreSoundSpinner.setSelection(opcionesMinutos.indexOf(editAlarm.getTimeNotificationPreAlarm()));
                 ringtoneSpinner.setSelection(ringtones.indexOf(editAlarm.getRingtoneTrack().getName()));
+                //Configurar para que muestre el lugar en el que estaba antes, Localizacion
+                locationTextView.setText(editAlarm.getLocation().getAddress());
                 //Configurar si es alarma de fecha o de dia/s
                 if(editAlarm.getDateToSound()!=null) {//en caso de que la alarma a editar sea de tipo fecha. Mostramos en el calendario la fecha selecionada
                     daysOrDateSwitch.setChecked(false);
@@ -148,6 +163,21 @@ public class addAlarmActivity extends AppCompatActivity {
     }
 
     /**
+     * Metodo para seleccionar un lugar para poder usar la metereologia ahi.
+     * @param view
+     */
+    public void setLocationButtonOnClick(View view) {
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        try {
+            startActivityForResult(builder.build(this),AlarmsAndSettings.PLACE_PICKER);
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Metodo que guarda la configuracion realizada sobre esa alarma y vuelve a MainActivity
      * @param view, View
      */
@@ -168,10 +198,10 @@ public class addAlarmActivity extends AppCompatActivity {
                 provisional.set(escogerFecha.getYear(),escogerFecha.getMonth(),escogerFecha.getDayOfMonth());
                 //Crear fecha y alarma
                 Fecha fechaASonar =new Fecha(escogerFecha.getYear(),provisional.get(Calendar.DAY_OF_YEAR),alarmPicker.getHour(),alarmPicker.getMinute());
-                newAlarm= new Alarm(idAUsar,alarmPicker.getHour(),alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono,fechaASonar);
+                newAlarm= new Alarm(idAUsar,alarmPicker.getHour(),alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono,fechaASonar,locationForAlarm);
             }else {//caso en el que se pone una fecha de varios dias o de un dia
                 int [] repeatArray = repeatBoxToArray();
-                newAlarm = new Alarm(idAUsar, alarmPicker.getHour(), alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono, repeatArray);
+                newAlarm = new Alarm(idAUsar, alarmPicker.getHour(), alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono, repeatArray,locationForAlarm);
             }
             if(option==1) {//caso en que añadimos la alarma
                 myAlarms.addAlarm(newAlarm);
@@ -228,7 +258,7 @@ public class addAlarmActivity extends AppCompatActivity {
     public void addRingtoneOnClick(View view) {
         new MaterialFilePicker()
                 .withActivity(this)
-                .withRequestCode(1)
+                .withRequestCode(AlarmsAndSettings.CONSTADDRINGTONE)
                 .withFilter(Pattern.compile(".*\\.mp3$"))
                 .withHiddenFiles(true)
                 .start();
@@ -242,7 +272,7 @@ public class addAlarmActivity extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1 && resultCode == RESULT_OK) {
+        if (requestCode == AlarmsAndSettings.CONSTADDRINGTONE && resultCode == RESULT_OK) {
             String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
             String name = filePath.substring(filePath.lastIndexOf('/')+1);
             Uri uri = Uri.fromFile(new File(filePath));
@@ -250,6 +280,10 @@ public class addAlarmActivity extends AppCompatActivity {
                 ringtones.add(name);
                 adapterRingtones.notifyDataSetChanged();
             }
+        }else if (requestCode==AlarmsAndSettings.PLACE_PICKER && resultCode==RESULT_OK) {//En caso de que se use para buscar un lugar preteterminado
+            Place place = PlacePicker.getPlace(data,this);
+            locationTextView.setText(place.getAddress());
+            locationForAlarm= new LocationPS(place.getLatLng().latitude,place.getLatLng().longitude,place.getAddress().toString());
         }
 
     }

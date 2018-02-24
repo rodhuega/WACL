@@ -14,12 +14,13 @@ import java.util.ArrayList;
  */
 
 public class AlarmsAndSettings implements Serializable{
-    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings139.alc";
+    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings141.alc";
     public static final String TEMPORALALARMFILE = "/temporalAlarmFile.alm";
     public static final int DAYSALARMCONST = -100;
     public static final int PRENOTCONST=-200;//si se trata de alarmas de un dia o de fecha llevan un 9 como ultimo digito
     public static final int CONSTADDRINGTONE = 8888;
     public static final String NOTIFICATION_CHANNEL_ID="WALC_notification_channel";
+    public static final int PLACE_PICKER = 9999;
     //Muchos aspectos por cubrir
     private ArrayList<Alarm> alarms;
 

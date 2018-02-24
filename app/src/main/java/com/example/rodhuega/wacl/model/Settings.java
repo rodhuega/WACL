@@ -11,6 +11,7 @@ public class Settings implements Serializable{
     private int postponeTime, timeNotificacionPreAlarm;
     private Ringtone ringtoneTrack;
     private ArrayList<Ringtone> ringtones;
+    private LocationPS defaultLocation;
 
     public Settings(int postponeTime, int timeNotificacionPreAlarm) {
         this.postponeTime=postponeTime;
@@ -18,6 +19,7 @@ public class Settings implements Serializable{
         //Creamos el Array que tiene Ringtones, por defecto no hay ningun Ringtone, añadimos el basico del sistema y lo ponemos como seleccionado
         ringtones = new ArrayList<>(); ringtones.add(new Ringtone("Default",android.provider.Settings.System.DEFAULT_RINGTONE_URI.toString(),0));
         this.ringtoneTrack=ringtones.get(0);
+        defaultLocation=null;
     }
 
 
@@ -72,6 +74,9 @@ public class Settings implements Serializable{
         return ringtones;
     }
 
+    public LocationPS getDefaultLocation() {
+        return defaultLocation;
+    }
     //Sets
 
 
@@ -89,5 +94,9 @@ public class Settings implements Serializable{
 
     public void setRingtones(ArrayList<Ringtone> ringtones) {
         this.ringtones = ringtones;
+    }
+
+    public void setDefaultLocation(LocationPS defaultLocation) {
+        this.defaultLocation = defaultLocation;
     }
 }

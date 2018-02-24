@@ -1,6 +1,7 @@
 package com.example.rodhuega.wacl;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -13,10 +14,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.rodhuega.wacl.model.AlarmsAndSettings;
+import com.example.rodhuega.wacl.model.LocationPS;
 import com.example.rodhuega.wacl.model.Settings;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
@@ -34,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
     private ArrayList<Integer> opcionesMinutos;
     private ArrayList<String>  ringtones;
     private ArrayAdapter<String> adapterRingtones;
+    private TextView locationTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +58,12 @@ public class SettingsActivity extends AppCompatActivity {
         myAlarms = MainActivity.loadAlarms(alarmsSavedFilePath);
         mySettings = myAlarms.getSettings();
         //adecuar la interfaz a lo configurado previamente.
+        locationTextView= (TextView) findViewById(R.id.locationTextView);
+        //En caso de que haya guardada alguna localizacion se muestra que es asi.
+        if(myAlarms.getSettings().getDefaultLocation()!=null) {
+            locationTextView.setText(myAlarms.getSettings().getDefaultLocation().getAddress());
+        }
+        //Spinners
         notificationPreSoundSpinner = (Spinner) findViewById(R.id.notificationPreSoundSpinner);
         postponeSpinner=(Spinner) findViewById(R.id.postponeSpinner);
         ringtoneSpinner=(Spinner) findViewById(R.id.ringtoneSpinner);
@@ -93,6 +107,21 @@ public class SettingsActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Metodo para seleccionar un lugar predeterminado para poder usar la metereologia ahi.
+     * @param view
+     */
+    public void setLocationButtonOnClick(View view) {
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        try {
+            startActivityForResult(builder.build(this),AlarmsAndSettings.PLACE_PICKER);
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     //Metodos que se encargan de añadir un Ringtone
@@ -104,21 +133,21 @@ public class SettingsActivity extends AppCompatActivity {
     public void addRingtoneOnClick(View view) {
         new MaterialFilePicker()
                 .withActivity(this)
-                .withRequestCode(1)
+                .withRequestCode(AlarmsAndSettings.CONSTADDRINGTONE)
                 .withFilter(Pattern.compile(".*\\.mp3$"))
                 .withHiddenFiles(true)
                 .start();
     }
 
     /**
-     * Metodo que se ejecuta despues de haber seleccionado un fichero de audio.
+     * Metodo que se ejecuta despues de haber seleccionado un fichero de audio o un lugar predeterminado
      * @param requestCode
      * @param resultCode
      * @param data
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1 && resultCode == RESULT_OK) {
+        if (requestCode == AlarmsAndSettings.CONSTADDRINGTONE && resultCode == RESULT_OK) {//En caso de que sea por añadir un ringtone
             String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
             String name = filePath.substring(filePath.lastIndexOf('/')+1);
             Uri uri = Uri.fromFile(new File(filePath));
@@ -126,6 +155,10 @@ public class SettingsActivity extends AppCompatActivity {
                 ringtones.add(name);
                 adapterRingtones.notifyDataSetChanged();
             }
+        }else if (requestCode==AlarmsAndSettings.PLACE_PICKER && resultCode==RESULT_OK) {//En caso de que se use para buscar un lugar preteterminado
+            Place place = PlacePicker.getPlace(data,this);
+            locationTextView.setText(place.getAddress());
+            myAlarms.getSettings().setDefaultLocation(new LocationPS(place.getLatLng().latitude,place.getLatLng().longitude,place.getAddress().toString()));
         }
 
     }
