@@ -19,6 +19,7 @@ public class AlarmsAndSettings implements Serializable{
     public static final int DAYSALARMCONST = -100;
     public static final int PRENOTCONST=-200;//si se trata de alarmas de un dia o de fecha llevan un 9 como ultimo digito
     public static final int CONSTADDRINGTONE = 8888;
+    public static final String NOTIFICATION_CHANNEL_ID="WALC_notification_channel";
     //Muchos aspectos por cubrir
     private ArrayList<Alarm> alarms;
 

@@ -2,13 +2,16 @@ package com.example.rodhuega.wacl;
 
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -62,6 +65,9 @@ public class RingtonePlayingService extends Service{
                 media_song.start();
                 //Notificacion de que esta sonando la alarma
                 notification = new Notification.Builder(getApplicationContext());
+                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+                    notification = new Notification.Builder(getApplicationContext(),AlarmsAndSettings.NOTIFICATION_CHANNEL_ID);
+                }
                 notification.setAutoCancel(true);
                 notification.setOngoing(true);
                 notification.setSmallIcon(R.mipmap.ic_launcher);
@@ -69,6 +75,7 @@ public class RingtonePlayingService extends Service{
                 notification.setWhen(System.currentTimeMillis());
                 notification.setContentTitle(getResources().getString(R.string.app_name));
                 notification.setContentText(MainActivity.twoDigits(alarm.getHour()) + ":" + MainActivity.twoDigits(alarm.getMinute())+"Dia: "+ diaCode);
+
                 //botones de notificacion
                 //Accion de apagar la alarma
                 Intent powerOffButton = new Intent(this, RingtonePlayingService.class);
@@ -119,6 +126,9 @@ public class RingtonePlayingService extends Service{
                 }
             }else if(action== 5) {//NotificacionPreAlarma
                 notification = new Notification.Builder(getApplicationContext());
+                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+                    notification = new Notification.Builder(getApplicationContext(),AlarmsAndSettings.NOTIFICATION_CHANNEL_ID);
+                }
                 notification.setAutoCancel(true);
                 notification.setSmallIcon(R.mipmap.ic_launcher);
                 notification.setTicker("WACL Notification");
