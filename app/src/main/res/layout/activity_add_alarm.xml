@@ -296,6 +296,33 @@
                     android:layout_weight="1"
                     android:text="@string/minutes_text" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rintoneLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ringtone_text" />
+
+                <Spinner
+                    android:id="@+id/ringtoneSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/addRingtoneButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="addRingtoneOnClick"
+                android:text="@string/addRingtone_text" />
         </LinearLayout>
 
     </ScrollView>

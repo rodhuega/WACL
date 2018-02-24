@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 
 public class AlarmsAndSettings implements Serializable{
-    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings138.alc";
+    public static final String NOMBREDELFICHERODECONF = "/alarmsAndSettings139.alc";
     public static final String TEMPORALALARMFILE = "/temporalAlarmFile.alm";
     public static final int DAYSALARMCONST = -100;
     public static final int PRENOTCONST=-200;//si se trata de alarmas de un dia o de fecha llevan un 9 como ultimo digito

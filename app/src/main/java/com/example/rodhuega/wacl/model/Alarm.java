@@ -76,10 +76,10 @@ public class Alarm implements Serializable {
     /**
      * Uri que contiene la pista que se va a reproducir en la alarma.
      */
-    private String RingtoneTrack;
+    private Ringtone RingtoneTrack;
 
     //Constructor para dias o siguiente hora
-    public Alarm(int id,int hour, int minute,int postponeTime,int timeNotificationPreAlarm, String RingtoneTrack, int[] days) {
+    public Alarm(int id,int hour, int minute,int postponeTime,int timeNotificationPreAlarm, Ringtone RingtoneTrack, int[] days) {
         this.id = id;
         this.enabled = true;
         this.hour =hour;
@@ -94,7 +94,7 @@ public class Alarm implements Serializable {
         minutePostponeTime=minute;
     }
     //Constructor para fecha
-    public Alarm(int id,int hour, int minute, int postponeTime,int timeNotificationPreAlarm,String RingtoneTrack, Fecha dateToSound) {
+    public Alarm(int id,int hour, int minute, int postponeTime,int timeNotificationPreAlarm,Ringtone RingtoneTrack, Fecha dateToSound) {
         this.id = id;
         this.enabled = true;
         this.hour=hour;
@@ -477,7 +477,7 @@ public class Alarm implements Serializable {
         return postponeTime;
     }
 
-    public String getRingtoneTrack() {
+    public Ringtone getRingtoneTrack() {
         return RingtoneTrack;
     }
 
@@ -527,7 +527,7 @@ public class Alarm implements Serializable {
         this.postponeTime = postponeTime;
     }
 
-    public void setRingtoneTrack(String ringtoneTrack) {
+    public void setRingtoneTrack(Ringtone ringtoneTrack) {
         RingtoneTrack = ringtoneTrack;
     }
 

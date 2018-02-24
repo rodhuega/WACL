@@ -22,4 +22,6 @@
     <string name="action_about_text">About</string>
     <string name="ringtone_text">Ringtone</string>
     <string name="addRingtone_text">Add Ringtone</string>
+    <string name="permisionGranted_text">Permision Granted</string>
+    <string name="permisionDenied_text">Permision Denied</string>
 </resources>

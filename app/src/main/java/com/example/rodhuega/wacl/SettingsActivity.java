@@ -62,10 +62,10 @@ public class SettingsActivity extends AppCompatActivity {
         notificationPreSoundSpinner.setSelection(opcionesMinutos.indexOf(mySettings.getTimeNotificacionPreAlarm()));
         postponeSpinner.setSelection(opcionesMinutos.indexOf(mySettings.getPostponeTime()));
         //Configuracion del spinner de tono.
-        ringtones= mySettings.getRingtones();
+        ringtones= mySettings.getRingtonesNames();
         adapterRingtones = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,ringtones);
         ringtoneSpinner.setAdapter(adapterRingtones);
-        ringtoneSpinner.setSelection(ringtones.indexOf(mySettings.getRingtoneTrack()));
+        ringtoneSpinner.setSelection(ringtones.indexOf(mySettings.getRingtoneTrack().getName()));
     }
 
 
@@ -84,14 +84,18 @@ public class SettingsActivity extends AppCompatActivity {
     public void saveButtonOnClick(View view) {
         myAlarms.getSettings().setPostponeTime(Integer.parseInt(postponeSpinner.getSelectedItem().toString()));
         myAlarms.getSettings().setTimeNotificacionPreAlarm(Integer.parseInt(notificationPreSoundSpinner.getSelectedItem().toString()));
-        myAlarms.getSettings().setRingtones(ringtones);
-        myAlarms.getSettings().setRingtoneTrack(ringtoneSpinner.getSelectedItem().toString());
+        myAlarms.getSettings().setRingtones(mySettings.getRingtones());
+        myAlarms.getSettings().setRingtoneTrack(mySettings.searchRingtone(ringtoneSpinner.getSelectedItem().toString()));
         Log.e("WIP",ringtoneSpinner.getSelectedItem().toString());
         MainActivity.saveAlarms(myAlarms,alarmsSavedFilePath);
         Intent goToMain = new Intent(this.getApplicationContext(), MainActivity.class);
         startActivity(goToMain);
         finish();
     }
+
+
+
+    //Metodos que se encargan de añadir un Ringtone
 
     /**
      * Metodo que abre un buscador de ficheros para buscar un .mp3 para reproducirlo como alarma
@@ -116,9 +120,10 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
             String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            String name = filePath.substring(filePath.lastIndexOf('/')+1);
             Uri uri = Uri.fromFile(new File(filePath));
-            if(ringtones.indexOf(uri.toString())==-1) {//Si ese archivo no esta en el array, se añade y se actualiza la UI.
-                ringtones.add(uri.toString());
+            if(mySettings.addRingtone(name,uri.toString())) {//Si ese archivo no esta en el array, se añade y se actualiza la UI.
+                ringtones.add(name);
                 adapterRingtones.notifyDataSetChanged();
             }
         }

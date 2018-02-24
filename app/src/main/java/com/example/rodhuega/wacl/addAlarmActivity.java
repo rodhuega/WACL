@@ -2,7 +2,10 @@ package com.example.rodhuega.wacl;
 
 import android.app.AlarmManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,14 +18,20 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.example.rodhuega.wacl.model.Alarm;
 import com.example.rodhuega.wacl.model.AlarmsAndSettings;
 import com.example.rodhuega.wacl.model.Fecha;
+import com.example.rodhuega.wacl.model.Ringtone;
+import com.nbsp.materialfilepicker.MaterialFilePicker;
+import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
 public class addAlarmActivity extends AppCompatActivity {
 
@@ -42,8 +51,10 @@ public class addAlarmActivity extends AppCompatActivity {
     private DatePicker escogerFecha;
     private Switch daysOrDateSwitch;
 
-    private Spinner notificationPreSoundSpinner, postponeSpinner;
+    private Spinner notificationPreSoundSpinner, postponeSpinner,ringtoneSpinner;
     private ArrayList<Integer> opcionesMinutos;
+    private ArrayList<String>  ringtones;
+    private ArrayAdapter<String> adapterRingtones;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +83,13 @@ public class addAlarmActivity extends AppCompatActivity {
         //Configuracion de los spinner
         notificationPreSoundSpinner = (Spinner) findViewById(R.id.notificationPreSoundSpinner);
         postponeSpinner=(Spinner) findViewById(R.id.postponeSpinner);
+        ringtoneSpinner=(Spinner) findViewById(R.id.ringtoneSpinner);
         opcionesMinutos = new ArrayList<Integer>();
         opcionesMinutos.add(1);opcionesMinutos.add(2);opcionesMinutos.add(3);opcionesMinutos.add(5);opcionesMinutos.add(10);opcionesMinutos.add(15);opcionesMinutos.add(30);
         ArrayAdapter<Integer> adapterMinutes = new ArrayAdapter<Integer>(this,android.R.layout.simple_spinner_item,opcionesMinutos);
         notificationPreSoundSpinner.setAdapter(adapterMinutes);
         postponeSpinner.setAdapter(adapterMinutes);
+
         //Switch que cambia segun si va a ser para fecha o para alarma normal o de varios dias
         daysOrDateSwitch = (Switch) findViewById(R.id.daysOrDateSwitch);
         daysOrDateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -95,6 +108,11 @@ public class addAlarmActivity extends AppCompatActivity {
             //Mostrar por defecto configuracion
             notificationPreSoundSpinner.setSelection(opcionesMinutos.indexOf(myAlarms.getSettings().getTimeNotificacionPreAlarm()));
             postponeSpinner.setSelection(opcionesMinutos.indexOf(myAlarms.getSettings().getPostponeTime()));
+            //Ringtone tono
+            ringtones= myAlarms.getSettings().getRingtonesNames();
+            adapterRingtones = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,ringtones);
+            ringtoneSpinner.setAdapter(adapterRingtones);
+            ringtoneSpinner.setSelection(ringtones.indexOf(myAlarms.getSettings().getRingtoneTrack().getName()));
             if (option == 2) {//caso de que editemos la alarma
                 //Cargamos la alarma a editar.
                 editAlarm = Alarm.loadAlarm(getApplicationContext().getFilesDir().getPath().toString() + AlarmsAndSettings.TEMPORALALARMFILE);
@@ -104,6 +122,7 @@ public class addAlarmActivity extends AppCompatActivity {
                 //Mostrar la configuracion de spinner seleccionada
                 postponeSpinner.setSelection(opcionesMinutos.indexOf(editAlarm.getPostponeTime()));
                 notificationPreSoundSpinner.setSelection(opcionesMinutos.indexOf(editAlarm.getTimeNotificationPreAlarm()));
+                ringtoneSpinner.setSelection(ringtones.indexOf(editAlarm.getRingtoneTrack().getName()));
                 //Configurar si es alarma de fecha o de dia/s
                 if(editAlarm.getDateToSound()!=null) {//en caso de que la alarma a editar sea de tipo fecha. Mostramos en el calendario la fecha selecionada
                     daysOrDateSwitch.setChecked(false);
@@ -136,13 +155,12 @@ public class addAlarmActivity extends AppCompatActivity {
         Log.e("PI", "presionado boton save");
         //habria que hacer destincion de si es por fecha o no////////////////////////////////////////
 
-        //Caso en el que no se usa una fecha.
         try {
             Alarm newAlarm;
             //Conseguir el valor de los spinner
             int postponeTime = Integer.parseInt(postponeSpinner.getSelectedItem().toString());
             int timeNotificationPreAlarm = Integer.parseInt(notificationPreSoundSpinner.getSelectedItem().toString());
-
+            Ringtone tono = myAlarms.getSettings().searchRingtone(ringtoneSpinner.getSelectedItem().toString());
             int idAUsar=option==1?myAlarms.getnID():editAlarm.getId();//saber si se va a usar una id nueva o una ya existente y asignar el valor
             if(!daysOrDateSwitch.isChecked()) {//caso en el que se pone una alarma de fecha
                 //Conseguir el dayofYear escogido
@@ -150,10 +168,10 @@ public class addAlarmActivity extends AppCompatActivity {
                 provisional.set(escogerFecha.getYear(),escogerFecha.getMonth(),escogerFecha.getDayOfMonth());
                 //Crear fecha y alarma
                 Fecha fechaASonar =new Fecha(escogerFecha.getYear(),provisional.get(Calendar.DAY_OF_YEAR),alarmPicker.getHour(),alarmPicker.getMinute());
-                newAlarm= new Alarm(idAUsar,alarmPicker.getHour(),alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,Settings.System.DEFAULT_RINGTONE_URI.toString(),fechaASonar);
+                newAlarm= new Alarm(idAUsar,alarmPicker.getHour(),alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono,fechaASonar);
             }else {//caso en el que se pone una fecha de varios dias o de un dia
                 int [] repeatArray = repeatBoxToArray();
-                newAlarm = new Alarm(idAUsar, alarmPicker.getHour(), alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,Settings.System.DEFAULT_RINGTONE_URI.toString(), repeatArray);
+                newAlarm = new Alarm(idAUsar, alarmPicker.getHour(), alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono, repeatArray);
             }
             if(option==1) {//caso en que añadimos la alarma
                 myAlarms.addAlarm(newAlarm);
@@ -197,6 +215,61 @@ public class addAlarmActivity extends AppCompatActivity {
         ((CheckBox) findViewById(R.id.FBox)).setChecked((editAlarm.getDays()[4] < 0));
         ((CheckBox) findViewById(R.id.SBox)).setChecked((editAlarm.getDays()[5] < 0));
         ((CheckBox) findViewById(R.id.UBox)).setChecked((editAlarm.getDays()[6] < 0));
+    }
+
+
+
+    //Metodos que se encargan de añadir un Ringtone
+
+    /**
+     * Metodo que abre un buscador de ficheros para buscar un .mp3 para reproducirlo como alarma
+     * @param view
+     */
+    public void addRingtoneOnClick(View view) {
+        new MaterialFilePicker()
+                .withActivity(this)
+                .withRequestCode(1)
+                .withFilter(Pattern.compile(".*\\.mp3$"))
+                .withHiddenFiles(true)
+                .start();
+    }
+
+    /**
+     * Metodo que se ejecuta despues de haber seleccionado un fichero de audio.
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            String name = filePath.substring(filePath.lastIndexOf('/')+1);
+            Uri uri = Uri.fromFile(new File(filePath));
+            if(myAlarms.getSettings().addRingtone(name,uri.toString())) {//Si ese archivo no esta en el array, se añade y se actualiza la UI.
+                ringtones.add(name);
+                adapterRingtones.notifyDataSetChanged();
+            }
+        }
+
+    }
+
+    /**
+     * Metodo que se ejecuta despues de pedir permiso para seleccionar un archivo de audio
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode==AlarmsAndSettings.CONSTADDRINGTONE) {
+            if(grantResults[0]== PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this,"Permission granted!", Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(this,"Permission denied!", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
     }
 
 }
