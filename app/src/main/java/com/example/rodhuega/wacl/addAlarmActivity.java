@@ -70,7 +70,7 @@ public class addAlarmActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_alarm);
 
-        locationForAlarm=null;
+
         locationTextView= (TextView) findViewById(R.id.locationTextView);
         //Recuperar el valor de option pasado, para saber si hay que editar o añadir una nueva
         option=this.getIntent().getExtras().getInt("optionAddAlarm");
@@ -125,7 +125,10 @@ public class addAlarmActivity extends AppCompatActivity {
             ringtoneSpinner.setAdapter(adapterRingtones);
             ringtoneSpinner.setSelection(ringtones.indexOf(myAlarms.getSettings().getRingtoneTrack().getName()));
             //Localizacion por defecto
-            locationTextView.setText(myAlarms.getSettings().getDefaultLocation().getAddress());
+            if(myAlarms.getSettings().getDefaultLocation()!=null) {
+                locationTextView.setText(myAlarms.getSettings().getDefaultLocation().getAddress());
+                locationForAlarm=myAlarms.getSettings().getDefaultLocation();
+            }
             if (option == 2) {//caso de que editemos la alarma
                 //Cargamos la alarma a editar.
                 editAlarm = Alarm.loadAlarm(getApplicationContext().getFilesDir().getPath().toString() + AlarmsAndSettings.TEMPORALALARMFILE);
@@ -137,7 +140,10 @@ public class addAlarmActivity extends AppCompatActivity {
                 notificationPreSoundSpinner.setSelection(opcionesMinutos.indexOf(editAlarm.getTimeNotificationPreAlarm()));
                 ringtoneSpinner.setSelection(ringtones.indexOf(editAlarm.getRingtoneTrack().getName()));
                 //Configurar para que muestre el lugar en el que estaba antes, Localizacion
-                locationTextView.setText(editAlarm.getLocation().getAddress());
+                if(editAlarm.getLocation()!=null) {
+                    locationTextView.setText(editAlarm.getLocation().getAddress());
+                    locationForAlarm=editAlarm.getLocation();
+                }
                 //Configurar si es alarma de fecha o de dia/s
                 if(editAlarm.getDateToSound()!=null) {//en caso de que la alarma a editar sea de tipo fecha. Mostramos en el calendario la fecha selecionada
                     daysOrDateSwitch.setChecked(false);

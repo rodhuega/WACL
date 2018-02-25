@@ -16,8 +16,18 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.rodhuega.wacl.model.Alarm;
 import com.example.rodhuega.wacl.model.AlarmsAndSettings;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -59,7 +69,7 @@ public class RingtonePlayingService extends Service{
             int dia = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
 
             //que hacer dependiendo de debeDeSonar y el estado del Ringtone sadsaw
-            if (action == 1 ) {//En caso de que tenga que sonar//&& alarm.getEnabled()
+            if (action == 1 && weatherCondition(alarm)) {//La alarma va a sonar.
                 //Parte que hace que suene la alarma
                 media_song = MediaPlayer.create(this, Uri.parse(alarm.getRingtoneTrack().getUri()));
                 media_song.start();
@@ -169,5 +179,37 @@ public class RingtonePlayingService extends Service{
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+
+    public boolean weatherCondition(Alarm alarm) {
+        boolean resultado=true;
+        if(alarm.getLocation()!=null) {
+            String url = "http://api.openweathermap.org/data/2.5/weather?lat=" + alarm.getLocation().getLatitude() + "&lon=" + alarm.getLocation().getLongitude() + "&appid=" + AlarmsAndSettings.OPENWEATHERMAPAPIKEY;
+            JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, url, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                JSONArray weather = response.getJSONArray("weather");
+                                JSONObject weatherObject = weather.getJSONObject(0);
+                                JSONObject coord = response.getJSONObject("coord");
+                                int codeTime= weatherObject.getInt("id");
+                                Log.e("tiempo", ""+ codeTime);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            });
+            RequestQueue queue = Volley.newRequestQueue(this);
+            queue.add(jor);
+        }
+
+        return resultado;
     }
 }
