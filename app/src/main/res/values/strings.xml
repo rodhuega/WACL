@@ -29,4 +29,5 @@
     <string name="setADefaultLocation_text">Set a default location</string>
     <string name="noSelectedPlace_text">No Selected place</string>
     <string name="setALocation_text">Set a location</string>
+    <string name="useConditionalWeather_text">Use condional weather</string>
 </resources>

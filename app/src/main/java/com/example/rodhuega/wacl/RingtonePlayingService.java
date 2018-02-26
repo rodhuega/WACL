@@ -69,7 +69,7 @@ public class RingtonePlayingService extends Service{
             int dia = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
 
             //que hacer dependiendo de debeDeSonar y el estado del Ringtone sadsaw
-            if (action == 1 && weatherCondition(alarm)) {//La alarma va a sonar.
+            if (action == 1 && weatherCondition(alarm,1)) {//La alarma va a sonar.
                 //Parte que hace que suene la alarma
                 media_song = MediaPlayer.create(this, Uri.parse(alarm.getRingtoneTrack().getUri()));
                 media_song.start();
@@ -181,10 +181,16 @@ public class RingtonePlayingService extends Service{
         super.onDestroy();
     }
 
-
-    public boolean weatherCondition(Alarm alarm) {
-        boolean resultado=true;
-        if(alarm.getLocation()!=null) {
+    /**
+     * Metodo que comprueba si la alarma tiene que sonar o no por las condiciones metereologicas configuradas por el usuario
+     * @param alarm, Alarm a analizar
+     * @param action, int accion que se esta produciendo en el servicio, por si es de tipo Sonar(1) y sea de las alarmas que suenan todas las semanas, reactivarla para la semana que viene
+     * @return
+     */
+    public boolean weatherCondition(final Alarm alarm, int action) {
+        final BooleanVariableFinal resultado= new BooleanVariableFinal(true);
+        if(alarm.getLocation()!=null && alarm.getConditionalWeather()) {
+            //Conseguir el estado metereologico de la posicion configurada
             String url = "http://api.openweathermap.org/data/2.5/weather?lat=" + alarm.getLocation().getLatitude() + "&lon=" + alarm.getLocation().getLongitude() + "&appid=" + AlarmsAndSettings.OPENWEATHERMAPAPIKEY;
             JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, url, null,
                     new Response.Listener<JSONObject>() {
@@ -193,8 +199,17 @@ public class RingtonePlayingService extends Service{
                             try {
                                 JSONArray weather = response.getJSONArray("weather");
                                 JSONObject weatherObject = weather.getJSONObject(0);
-                                JSONObject coord = response.getJSONObject("coord");
                                 int codeTime= weatherObject.getInt("id");
+                                //Analizar si tiene que sonar o no la alarma
+                                if(codeTime==800 && !alarm.getWeatherEnabledSound()[0]) {
+                                    resultado.setValor(false);
+                                }else if(codeTime>800 && codeTime<900 && !alarm.getWeatherEnabledSound()[1]) {
+                                    resultado.setValor(false);
+                                }else if(codeTime>=200 && codeTime<600 && !alarm.getWeatherEnabledSound()[2]) {
+                                    resultado.setValor(false);
+                                }else if(codeTime>=600 && codeTime<700 && !alarm.getWeatherEnabledSound()[3]) {
+                                    resultado.setValor(false);
+                                }
                                 Log.e("tiempo", ""+ codeTime);
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -209,7 +224,29 @@ public class RingtonePlayingService extends Service{
             RequestQueue queue = Volley.newRequestQueue(this);
             queue.add(jor);
         }
+        if(!resultado.getValor() && alarm.getRepeat() && action==1) {//en el caso de que no tenga que sonar y sea de las alarmas que suenan cada semana x dias, reactivarlo para el dia siguiente
+            alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false,true);
+        }
 
-        return resultado;
+
+        return resultado.getValor();
+    }
+}
+
+/**
+ *  Clase auxiliar que permite poder tener un Boolean final dentro de la peticion de JSON
+ */
+class BooleanVariableFinal {
+    private boolean valor;
+    public BooleanVariableFinal(boolean valor) {
+        this.valor=valor;
+    }
+
+    public void setValor(boolean valor) {
+        this.valor = valor;
+    }
+
+    public boolean getValor() {
+        return valor;
     }
 }

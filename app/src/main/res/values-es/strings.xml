@@ -29,4 +29,5 @@
     <string name="setADefaultLocation_text">Configurar localizacion predeterminada</string>
     <string name="noSelectedPlace_text">Ningun Lugar seleccionado</string>
     <string name="setALocation_text">Configurar localización</string>
+    <string name="useConditionalWeather_text">Usar climatologia condicional</string>
 </resources>

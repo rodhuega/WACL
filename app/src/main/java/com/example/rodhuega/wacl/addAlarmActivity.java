@@ -63,7 +63,9 @@ public class addAlarmActivity extends AppCompatActivity {
     private ArrayList<Integer> opcionesMinutos;
     private ArrayList<String>  ringtones;
     private ArrayAdapter<String> adapterRingtones;
+
     private TextView locationTextView;
+    private Switch useConditionalWeatherSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,7 @@ public class addAlarmActivity extends AppCompatActivity {
 
 
         locationTextView= (TextView) findViewById(R.id.locationTextView);
+
         //Recuperar el valor de option pasado, para saber si hay que editar o añadir una nueva
         option=this.getIntent().getExtras().getInt("optionAddAlarm");
         alarmsSavedFilePath= this.getApplicationContext().getFilesDir().getPath().toString()+AlarmsAndSettings.NOMBREDELFICHERODECONF;//directorio donde se guarda toda la configuracion
@@ -114,6 +117,21 @@ public class addAlarmActivity extends AppCompatActivity {
                 }
             }
         });
+        //Switch metereologico
+        final LinearLayout weatherLayout= (LinearLayout) findViewById(R.id.weatherLayout);
+        final LinearLayout weatherCondicionsLayout = (LinearLayout) findViewById(R.id.weatherCondicionsLayout);
+        useConditionalWeatherSwitch = (Switch) findViewById(R.id.useConditionalWeatherSwitch);
+        useConditionalWeatherSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                weatherLayout.removeAllViews();
+                if(b) {
+                    weatherLayout.addView(weatherCondicionsLayout);
+                }
+            }
+        });
+        useConditionalWeatherSwitch.setChecked(false);//Segun lo que se haya seleccionado como configuracion por defecto.
+
         try {//Cargamos todas las alarmas
             myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
             //Mostrar por defecto configuracion
@@ -154,6 +172,8 @@ public class addAlarmActivity extends AppCompatActivity {
                 }else {//Alarma de varios dias.
                     ArrayToRepeatBox();
                 }
+                ArrayWeatherToBox();//restauramos la parte metereologica a editar
+                useConditionalWeatherSwitch.setChecked(editAlarm.getConditionalWeather());
             }
         }catch (IOException | ClassNotFoundException ioe) {
             Log.e("Error:", "error al cargar alarma");
@@ -198,16 +218,17 @@ public class addAlarmActivity extends AppCompatActivity {
             int timeNotificationPreAlarm = Integer.parseInt(notificationPreSoundSpinner.getSelectedItem().toString());
             Ringtone tono = myAlarms.getSettings().searchRingtone(ringtoneSpinner.getSelectedItem().toString());
             int idAUsar=option==1?myAlarms.getnID():editAlarm.getId();//saber si se va a usar una id nueva o una ya existente y asignar el valor
+            boolean[] weatherArray = weatherBoxToArray();//alarma metereologica condicional
             if(!daysOrDateSwitch.isChecked()) {//caso en el que se pone una alarma de fecha
                 //Conseguir el dayofYear escogido
                 Calendar provisional = Calendar.getInstance();
                 provisional.set(escogerFecha.getYear(),escogerFecha.getMonth(),escogerFecha.getDayOfMonth());
                 //Crear fecha y alarma
                 Fecha fechaASonar =new Fecha(escogerFecha.getYear(),provisional.get(Calendar.DAY_OF_YEAR),alarmPicker.getHour(),alarmPicker.getMinute());
-                newAlarm= new Alarm(idAUsar,alarmPicker.getHour(),alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono,fechaASonar,locationForAlarm);
+                newAlarm= new Alarm(idAUsar,alarmPicker.getHour(),alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono,fechaASonar,locationForAlarm,weatherArray);
             }else {//caso en el que se pone una fecha de varios dias o de un dia
                 int [] repeatArray = repeatBoxToArray();
-                newAlarm = new Alarm(idAUsar, alarmPicker.getHour(), alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono, repeatArray,locationForAlarm);
+                newAlarm = new Alarm(idAUsar, alarmPicker.getHour(), alarmPicker.getMinute(), postponeTime, timeNotificationPreAlarm,tono, repeatArray,locationForAlarm,weatherArray);
             }
             if(option==1) {//caso en que añadimos la alarma
                 myAlarms.addAlarm(newAlarm);
@@ -253,6 +274,35 @@ public class addAlarmActivity extends AppCompatActivity {
         ((CheckBox) findViewById(R.id.UBox)).setChecked((editAlarm.getDays()[6] < 0));
     }
 
+    /**
+     * Metodo que analiza si se usan la alarma condicional metereologica y devuelve un array con sus valores asignados
+     * @return resultado, boolean[4], posiciones a true en caso de que deba de sonar bajo esa condicion. = despejado, 1 nublado, 2 tormenta/lloviendo/truenos, 3 nevando
+     */
+    public boolean [] weatherBoxToArray() {
+        boolean[] resultado = new boolean[4];
+        if(useConditionalWeatherSwitch.isChecked()) {//en caso de que se use la alarma metereologica condicional se ve como estan marcadas las checkboxes y se asigna al array
+            resultado[0]= ((CheckBox)findViewById(R.id.sunnyCheckBox)).isChecked();
+            resultado[1]= ((CheckBox)findViewById(R.id.cloudyCheckBox)).isChecked();
+            resultado[2]= ((CheckBox)findViewById(R.id.rainyCheckBox)).isChecked();
+            resultado[3]= ((CheckBox)findViewById(R.id.snowyCheckBox)).isChecked();
+        }else {//En caso de que no se use la alarma metereologica condicional, se ponen todos los elementos a true
+            for (boolean bool: resultado) {
+                bool=true;
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * Metod
+     */
+    public void ArrayWeatherToBox() {
+        ((CheckBox) findViewById(R.id.sunnyCheckBox)).setChecked(editAlarm.getWeatherEnabledSound()[0]);
+        ((CheckBox) findViewById(R.id.cloudyCheckBox)).setChecked(editAlarm.getWeatherEnabledSound()[1]);
+        ((CheckBox) findViewById(R.id.rainyCheckBox)).setChecked(editAlarm.getWeatherEnabledSound()[2]);
+        ((CheckBox) findViewById(R.id.snowyCheckBox)).setChecked(editAlarm.getWeatherEnabledSound()[3]);
+
+    }
 
 
     //Metodos que se encargan de añadir un Ringtone

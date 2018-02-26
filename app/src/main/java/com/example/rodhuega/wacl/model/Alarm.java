@@ -78,10 +78,24 @@ public class Alarm implements Serializable {
      */
     private Ringtone RingtoneTrack;
 
+    /**
+     * Atributo que contiene la localizacion en la que se va a usar la alarma condicional, null en caso de no usarse
+     */
     private LocationPS location;
 
+    /**
+     * Atributo boolean que indica si una
+     */
+    private boolean conditionalWeather;
+
+    /**
+     * Atributo que tendra sus elementos a true si debe de sonar en esa condicion.
+     * boolean[4], posiciones a true en caso de que deba de sonar bajo esa condicion. = despejado, 1 nublado, 2 tormenta/lloviendo/truenos, 3 nevando
+     */
+    private boolean[] weatherEnabledSound;
+
     //Constructor para dias o siguiente hora
-    public Alarm(int id,int hour, int minute,int postponeTime,int timeNotificationPreAlarm, Ringtone RingtoneTrack, int[] days,LocationPS location) {
+    public Alarm(int id,int hour, int minute,int postponeTime,int timeNotificationPreAlarm, Ringtone RingtoneTrack, int[] days,LocationPS location, boolean[] weatherEnabledSound) {
         this.id = id;
         this.enabled = true;
         this.hour =hour;
@@ -96,9 +110,11 @@ public class Alarm implements Serializable {
         minutePostponeTime=minute;
         //Tema para metereologia
         this.location=location;
+        this.weatherEnabledSound=weatherEnabledSound;
+        conditionalWeather=isConditionalWeatherEnabled();
     }
     //Constructor para fecha
-    public Alarm(int id,int hour, int minute, int postponeTime,int timeNotificationPreAlarm,Ringtone RingtoneTrack, Fecha dateToSound,LocationPS location) {
+    public Alarm(int id,int hour, int minute, int postponeTime,int timeNotificationPreAlarm,Ringtone RingtoneTrack, Fecha dateToSound,LocationPS location, boolean[] weatherEnabledSound) {
         this.id = id;
         this.enabled = true;
         this.hour=hour;
@@ -112,6 +128,8 @@ public class Alarm implements Serializable {
         minutePostponeTime=minute;
         //Tema para metereologia
         this.location=location;
+        this.weatherEnabledSound=weatherEnabledSound;
+        conditionalWeather=isConditionalWeatherEnabled();
         //quiza haga falta hacer new y pasar el array de days a false.
     }
 
@@ -127,6 +145,20 @@ public class Alarm implements Serializable {
                 //Construimos un codigo que sera el requestCode que se le pasara al PendingIntent de ese dia. Luego lo guardamos en el esa posicion del array
                 //Formato del codigo CONST,ID,PosicionDelDia, la posicion del dia va 0 si es lunes a 6 si es domingo
                 days[i] = Integer.parseInt(AlarmsAndSettings.DAYSALARMCONST+""+id+""+i);
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * Metodo que mira si se ha activado la alarma condicional
+     * @return
+     */
+    public boolean isConditionalWeatherEnabled() {
+        boolean resultado = false;
+        for(int i =0;i<weatherEnabledSound.length&&!resultado;i++) {
+            if(!weatherEnabledSound[i]) {
+                resultado=true;
             }
         }
         return resultado;
@@ -450,7 +482,6 @@ public class Alarm implements Serializable {
 
     //Gets
 
-
     public int[] getDays() {
         return days;
     }
@@ -501,6 +532,14 @@ public class Alarm implements Serializable {
 
     public LocationPS getLocation() {
         return location;
+    }
+
+    public boolean[] getWeatherEnabledSound() {
+        return weatherEnabledSound;
+    }
+
+    public boolean getConditionalWeather() {
+        return conditionalWeather;
     }
 
     //Sets
@@ -555,5 +594,13 @@ public class Alarm implements Serializable {
 
     public void setLocation(LocationPS location) {
         this.location = location;
+    }
+
+    public void setConditionalWeather(boolean conditionalWeather) {
+        this.conditionalWeather = conditionalWeather;
+    }
+
+    public void setWeatherEnabledSound(boolean[] weatherEnabledSound) {
+        this.weatherEnabledSound = weatherEnabledSound;
     }
 }
