@@ -130,7 +130,7 @@ public class addAlarmActivity extends AppCompatActivity {
                 }
             }
         });
-        useConditionalWeatherSwitch.setChecked(false);//Segun lo que se haya seleccionado como configuracion por defecto.
+        weatherLayout.removeAllViews();//Segun lo que se haya seleccionado como configuracion por defecto., es decir desactivado
 
         try {//Cargamos todas las alarmas
             myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);

@@ -353,7 +353,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/useConditionalWeather_text"
-                tools:checked="true" />
+                tools:checked="false" />
 
             <LinearLayout
                 android:id="@+id/weatherLayout"

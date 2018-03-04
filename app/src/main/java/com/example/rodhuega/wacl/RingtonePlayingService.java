@@ -134,7 +134,7 @@ public class RingtonePlayingService extends Service{
                     Log.e("DebugDificil","Dentro de else if action 4");//Debug
                     alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(), true, true);
                 }
-            }else if(action== 5) {//NotificacionPreAlarma
+            }else if(action== 5 && weatherCondition(alarm,6)) {//NotificacionPreAlarma
                 notification = new Notification.Builder(getApplicationContext());
                 if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
                     notification = new Notification.Builder(getApplicationContext(),AlarmsAndSettings.NOTIFICATION_CHANNEL_ID);
@@ -188,10 +188,11 @@ public class RingtonePlayingService extends Service{
      * @return
      */
     public boolean weatherCondition(final Alarm alarm, int action) {
-        final BooleanVariableFinal resultado= new BooleanVariableFinal(true);
+        final boolean[] resultado = new boolean[1];
         if(alarm.getLocation()!=null && alarm.getConditionalWeather()) {
             //Conseguir el estado metereologico de la posicion configurada
             String url = "http://api.openweathermap.org/data/2.5/weather?lat=" + alarm.getLocation().getLatitude() + "&lon=" + alarm.getLocation().getLongitude() + "&appid=" + AlarmsAndSettings.OPENWEATHERMAPAPIKEY;
+            Log.e("URL: ",url);
             JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, url, null,
                     new Response.Listener<JSONObject>() {
                         @Override
@@ -201,14 +202,14 @@ public class RingtonePlayingService extends Service{
                                 JSONObject weatherObject = weather.getJSONObject(0);
                                 int codeTime= weatherObject.getInt("id");
                                 //Analizar si tiene que sonar o no la alarma
-                                if(codeTime==800 && !alarm.getWeatherEnabledSound()[0]) {
-                                    resultado.setValor(false);
-                                }else if(codeTime>800 && codeTime<900 && !alarm.getWeatherEnabledSound()[1]) {
-                                    resultado.setValor(false);
-                                }else if(codeTime>=200 && codeTime<600 && !alarm.getWeatherEnabledSound()[2]) {
-                                    resultado.setValor(false);
-                                }else if(codeTime>=600 && codeTime<700 && !alarm.getWeatherEnabledSound()[3]) {
-                                    resultado.setValor(false);
+                                if(codeTime==800 && !alarm.getWeatherEnabledSound()[0]) {//Despejado
+                                    resultado[0]=false;
+                                }else if(codeTime>800 && codeTime<900 && !alarm.getWeatherEnabledSound()[1]) {//Nublado
+                                    resultado[0]=false;
+                                }else if(codeTime>=200 && codeTime<600 && !alarm.getWeatherEnabledSound()[2]) {//tormenta/lloviendo/tronando
+                                    resultado[0]=false;
+                                }else if(codeTime>=600 && codeTime<700 && !alarm.getWeatherEnabledSound()[3]) {//Nevando
+                                    resultado[0]=false;
                                 }
                                 Log.e("tiempo", ""+ codeTime);
                             } catch (JSONException e) {
@@ -224,29 +225,13 @@ public class RingtonePlayingService extends Service{
             RequestQueue queue = Volley.newRequestQueue(this);
             queue.add(jor);
         }
-        if(!resultado.getValor() && alarm.getRepeat() && action==1) {//en el caso de que no tenga que sonar y sea de las alarmas que suenan cada semana x dias, reactivarlo para el dia siguiente
+        if(!resultado[0] && alarm.getRepeat() && action==1) {//en el caso de que no tenga que sonar y sea de las alarmas que suenan cada semana x dias, reactivarlo para el dia siguiente
             alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false,true);
         }
 
 
-        return resultado.getValor();
+        return resultado[0];
     }
 }
 
-/**
- *  Clase auxiliar que permite poder tener un Boolean final dentro de la peticion de JSON
- */
-class BooleanVariableFinal {
-    private boolean valor;
-    public BooleanVariableFinal(boolean valor) {
-        this.valor=valor;
-    }
 
-    public void setValor(boolean valor) {
-        this.valor = valor;
-    }
-
-    public boolean getValor() {
-        return valor;
-    }
-}
