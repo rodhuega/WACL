@@ -84,7 +84,7 @@ public class Alarm implements Serializable {
     private LocationPS location;
 
     /**
-     * Atributo boolean que indica si una
+     * Atributo boolean que indica si la alarma condicional esta activada
      */
     private boolean conditionalWeather;
 
@@ -598,6 +598,11 @@ public class Alarm implements Serializable {
 
     public void setConditionalWeather(boolean conditionalWeather) {
         this.conditionalWeather = conditionalWeather;
+        if(!conditionalWeather) {
+            for (boolean bool: weatherEnabledSound) {
+                bool=true;
+            }
+        }
     }
 
     public void setWeatherEnabledSound(boolean[] weatherEnabledSound) {

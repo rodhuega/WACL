@@ -130,7 +130,7 @@ public class addAlarmActivity extends AppCompatActivity {
                 }
             }
         });
-        weatherLayout.removeAllViews();//Segun lo que se haya seleccionado como configuracion por defecto., es decir desactivado
+
 
         try {//Cargamos todas las alarmas
             myAlarms = AlarmsAndSettings.loadAlarms(alarmsSavedFilePath);
@@ -146,6 +146,13 @@ public class addAlarmActivity extends AppCompatActivity {
             if(myAlarms.getSettings().getDefaultLocation()!=null) {
                 locationTextView.setText(myAlarms.getSettings().getDefaultLocation().getAddress());
                 locationForAlarm=myAlarms.getSettings().getDefaultLocation();
+            }
+            //carga ajustes metereologicos por defecot
+            if(!myAlarms.getSettings().getConditionalWeather()) {//Segun lo que se haya seleccionado como configuracion por defecto,//Caso desactivado
+                weatherLayout.removeAllViews();//Segun lo que se haya seleccionado como configuracion;
+            }else {//caso en el que este activado, asignar los boolean como toca
+                ArrayWeatherToBox(myAlarms.getSettings().getWeatherEnabledSound());
+                useConditionalWeatherSwitch.setChecked(true);
             }
             if (option == 2) {//caso de que editemos la alarma
                 //Cargamos la alarma a editar.
@@ -172,7 +179,7 @@ public class addAlarmActivity extends AppCompatActivity {
                 }else {//Alarma de varios dias.
                     ArrayToRepeatBox();
                 }
-                ArrayWeatherToBox();//restauramos la parte metereologica a editar
+                ArrayWeatherToBox(editAlarm.getWeatherEnabledSound());//restauramos la parte metereologica a editar
                 useConditionalWeatherSwitch.setChecked(editAlarm.getConditionalWeather());
             }
         }catch (IOException | ClassNotFoundException ioe) {
@@ -294,13 +301,13 @@ public class addAlarmActivity extends AppCompatActivity {
     }
 
     /**
-     * Metod
+     * Metodo que visualiza el estado de los checkboxes segun este en el array
      */
-    public void ArrayWeatherToBox() {
-        ((CheckBox) findViewById(R.id.sunnyCheckBox)).setChecked(editAlarm.getWeatherEnabledSound()[0]);
-        ((CheckBox) findViewById(R.id.cloudyCheckBox)).setChecked(editAlarm.getWeatherEnabledSound()[1]);
-        ((CheckBox) findViewById(R.id.rainyCheckBox)).setChecked(editAlarm.getWeatherEnabledSound()[2]);
-        ((CheckBox) findViewById(R.id.snowyCheckBox)).setChecked(editAlarm.getWeatherEnabledSound()[3]);
+    public void ArrayWeatherToBox(boolean[] weatherArray) {
+        ((CheckBox) findViewById(R.id.sunnyCheckBox)).setChecked(weatherArray[0]);
+        ((CheckBox) findViewById(R.id.cloudyCheckBox)).setChecked(weatherArray[1]);
+        ((CheckBox) findViewById(R.id.rainyCheckBox)).setChecked(weatherArray[2]);
+        ((CheckBox) findViewById(R.id.snowyCheckBox)).setChecked(weatherArray[3]);
 
     }
 

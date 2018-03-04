@@ -21,6 +21,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 import com.example.rodhuega.wacl.model.Alarm;
 import com.example.rodhuega.wacl.model.AlarmsAndSettings;
@@ -31,13 +32,16 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by pillo on 07/02/2018.
  */
 
 public class RingtonePlayingService extends Service{
-
+    Object variableCondicion = new Object();
     MediaPlayer media_song;
     Notification.Builder notification;
     NotificationManager nm;
@@ -188,43 +192,51 @@ public class RingtonePlayingService extends Service{
      * @return
      */
     public boolean weatherCondition(final Alarm alarm, int action) {
-        final boolean[] resultado = new boolean[1];
+        final boolean[] resultado = new boolean[2];//posicion 1 se usa para decir si tiene que sonar la alarma o no, posicion 2 para  ver si se ha abado de esperar el json
+        resultado[0]=true;resultado[1]=false;
         if(alarm.getLocation()!=null && alarm.getConditionalWeather()) {
             //Conseguir el estado metereologico de la posicion configurada
-            String url = "http://api.openweathermap.org/data/2.5/weather?lat=" + alarm.getLocation().getLatitude() + "&lon=" + alarm.getLocation().getLongitude() + "&appid=" + AlarmsAndSettings.OPENWEATHERMAPAPIKEY;
-            Log.e("URL: ",url);
-            JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, url, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                JSONArray weather = response.getJSONArray("weather");
-                                JSONObject weatherObject = weather.getJSONObject(0);
-                                int codeTime= weatherObject.getInt("id");
-                                //Analizar si tiene que sonar o no la alarma
-                                if(codeTime==800 && !alarm.getWeatherEnabledSound()[0]) {//Despejado
-                                    resultado[0]=false;
-                                }else if(codeTime>800 && codeTime<900 && !alarm.getWeatherEnabledSound()[1]) {//Nublado
-                                    resultado[0]=false;
-                                }else if(codeTime>=200 && codeTime<600 && !alarm.getWeatherEnabledSound()[2]) {//tormenta/lloviendo/tronando
-                                    resultado[0]=false;
-                                }else if(codeTime>=600 && codeTime<700 && !alarm.getWeatherEnabledSound()[3]) {//Nevando
-                                    resultado[0]=false;
-                                }
-                                Log.e("tiempo", ""+ codeTime);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
+            final Context contexto = this;
+            Thread t = new Thread(new Runnable() {
                 @Override
-                public void onErrorResponse(VolleyError error) {
-
+                public void run() {
+                    String url = "http://api.openweathermap.org/data/2.5/weather?lat=" + alarm.getLocation().getLatitude() + "&lon=" + alarm.getLocation().getLongitude() + "&appid=" + AlarmsAndSettings.OPENWEATHERMAPAPIKEY;
+                    Log.e("URL: ", url);
+                    RequestFuture<JSONObject> future = RequestFuture.newFuture();
+                    JsonObjectRequest request = new JsonObjectRequest(url, null, future, future);
+                    RequestQueue queue = Volley.newRequestQueue(contexto);
+                    queue.add(request);
+                    try {
+                        JSONObject response = future.get(10, TimeUnit.SECONDS);
+                        try {
+                            JSONArray weather = response.getJSONArray("weather");
+                            JSONObject weatherObject = weather.getJSONObject(0);
+                            int codeTime = weatherObject.getInt("id");
+                            //Analizar si tiene que sonar o no la alarma
+                            if (codeTime == 800 && !alarm.getWeatherEnabledSound()[0]) {//Despejado
+                                resultado[0] = false;
+                            } else if (codeTime > 800 && codeTime < 900 && !alarm.getWeatherEnabledSound()[1]) {//Nublado
+                                resultado[0] = false;
+                            } else if (codeTime >= 200 && codeTime < 600 && !alarm.getWeatherEnabledSound()[2]) {//tormenta/lloviendo/tronando
+                                resultado[0] = false;
+                            } else if (codeTime >= 600 && codeTime < 700 && !alarm.getWeatherEnabledSound()[3]) {//Nevando
+                                resultado[0] = false;
+                            }
+                            Log.e("tiempo", "" + codeTime);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (InterruptedException | ExecutionException | TimeoutException e) {}
                 }
-            });
-            RequestQueue queue = Volley.newRequestQueue(this);
-            queue.add(jor);
+            });t.start();
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+
+
         if(!resultado[0] && alarm.getRepeat() && action==1) {//en el caso de que no tenga que sonar y sea de las alarmas que suenan cada semana x dias, reactivarlo para el dia siguiente
             alarm.enableAlarmSound((AlarmManager) getSystemService(ALARM_SERVICE), this.getApplicationContext(),false,true);
         }

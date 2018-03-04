@@ -13,7 +13,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +46,7 @@ public class SettingsActivity extends AppCompatActivity {
     private ArrayList<String>  ringtones;
     private ArrayAdapter<String> adapterRingtones;
     private TextView locationTextView;
+    private Switch useConditionalWeatherSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +85,27 @@ public class SettingsActivity extends AppCompatActivity {
         adapterRingtones = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,ringtones);
         ringtoneSpinner.setAdapter(adapterRingtones);
         ringtoneSpinner.setSelection(ringtones.indexOf(mySettings.getRingtoneTrack().getName()));
+
+        //Switch metereologico
+        final LinearLayout weatherLayout= (LinearLayout) findViewById(R.id.weatherLayout);
+        final LinearLayout weatherCondicionsLayout = (LinearLayout) findViewById(R.id.weatherCondicionsLayout);
+        useConditionalWeatherSwitch = (Switch) findViewById(R.id.useConditionalWeatherSwitch);
+        useConditionalWeatherSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                weatherLayout.removeAllViews();
+                if(b) {
+                    weatherLayout.addView(weatherCondicionsLayout);
+                }
+            }
+        });
+        if(!myAlarms.getSettings().getConditionalWeather()) {//Segun lo que se haya seleccionado como configuracion por defecto,//Caso desactivado
+            weatherLayout.removeAllViews();//Segun lo que se haya seleccionado como configuracion;
+        }else {//caso en el que este activado, asignar los boolean como toca
+            ArrayWeatherToBox();
+            useConditionalWeatherSwitch.setChecked(true);
+        }
+
     }
 
 
@@ -100,6 +126,8 @@ public class SettingsActivity extends AppCompatActivity {
         myAlarms.getSettings().setTimeNotificacionPreAlarm(Integer.parseInt(notificationPreSoundSpinner.getSelectedItem().toString()));
         myAlarms.getSettings().setRingtones(mySettings.getRingtones());
         myAlarms.getSettings().setRingtoneTrack(mySettings.searchRingtone(ringtoneSpinner.getSelectedItem().toString()));
+        myAlarms.getSettings().setConditionalWeather(useConditionalWeatherSwitch.isChecked());
+        myAlarms.getSettings().setWeatherEnabledSound(weatherBoxToArray());
         Log.e("WIP",ringtoneSpinner.getSelectedItem().toString());
         MainActivity.saveAlarms(myAlarms,alarmsSavedFilePath);
         Intent goToMain = new Intent(this.getApplicationContext(), MainActivity.class);
@@ -120,6 +148,37 @@ public class SettingsActivity extends AppCompatActivity {
         } catch (GooglePlayServicesNotAvailableException e) {
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * Metodo que analiza si se usan la alarma condicional metereologica y devuelve un array con sus valores asignados
+     * @return resultado, boolean[4], posiciones a true en caso de que deba de sonar bajo esa condicion. = despejado, 1 nublado, 2 tormenta/lloviendo/truenos, 3 nevando
+     */
+    public boolean [] weatherBoxToArray() {
+        boolean[] resultado = new boolean[4];
+        if(useConditionalWeatherSwitch.isChecked()) {//en caso de que se use la alarma metereologica condicional se ve como estan marcadas las checkboxes y se asigna al array
+            resultado[0]= ((CheckBox)findViewById(R.id.sunnyCheckBox)).isChecked();
+            resultado[1]= ((CheckBox)findViewById(R.id.cloudyCheckBox)).isChecked();
+            resultado[2]= ((CheckBox)findViewById(R.id.rainyCheckBox)).isChecked();
+            resultado[3]= ((CheckBox)findViewById(R.id.snowyCheckBox)).isChecked();
+        }else {//En caso de que no se use la alarma metereologica condicional, se ponen todos los elementos a true
+            for (boolean bool: resultado) {
+                bool=true;
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * Metodo que visualiza el estado de los checkboxes segun este en el array
+     */
+    public void ArrayWeatherToBox() {
+        ((CheckBox) findViewById(R.id.sunnyCheckBox)).setChecked(myAlarms.getSettings().getWeatherEnabledSound()[0]);
+        ((CheckBox) findViewById(R.id.cloudyCheckBox)).setChecked(myAlarms.getSettings().getWeatherEnabledSound()[1]);
+        ((CheckBox) findViewById(R.id.rainyCheckBox)).setChecked(myAlarms.getSettings().getWeatherEnabledSound()[2]);
+        ((CheckBox) findViewById(R.id.snowyCheckBox)).setChecked(myAlarms.getSettings().getWeatherEnabledSound()[3]);
+
     }
 
 

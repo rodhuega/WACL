@@ -12,6 +12,16 @@ public class Settings implements Serializable{
     private Ringtone ringtoneTrack;
     private ArrayList<Ringtone> ringtones;
     private LocationPS defaultLocation;
+    /**
+     * Atributo boolean que indica si por defecto se usa la alarma condicional de tiempo
+     */
+    private boolean conditionalWeather;
+
+    /**
+     * Atributo que tendra sus elementos a true si debe de sonar en esa condicion.
+     * boolean[4], posiciones a true en caso de que deba de sonar bajo esa condicion. = despejado, 1 nublado, 2 tormenta/lloviendo/truenos, 3 nevando
+     */
+    private boolean[] weatherEnabledSound;
 
     public Settings(int postponeTime, int timeNotificacionPreAlarm) {
         this.postponeTime=postponeTime;
@@ -20,6 +30,12 @@ public class Settings implements Serializable{
         ringtones = new ArrayList<>(); ringtones.add(new Ringtone("Default",android.provider.Settings.System.DEFAULT_RINGTONE_URI.toString(),0));
         this.ringtoneTrack=ringtones.get(0);
         defaultLocation=null;
+        conditionalWeather=false;
+        weatherEnabledSound= new boolean[4];
+        for (boolean bool : weatherEnabledSound) {
+            bool=true;
+        }
+
     }
 
 
@@ -77,6 +93,15 @@ public class Settings implements Serializable{
     public LocationPS getDefaultLocation() {
         return defaultLocation;
     }
+
+    public boolean[] getWeatherEnabledSound() {
+        return weatherEnabledSound;
+    }
+
+    public boolean getConditionalWeather() {
+        return conditionalWeather;
+    }
+
     //Sets
 
 
@@ -98,5 +123,18 @@ public class Settings implements Serializable{
 
     public void setDefaultLocation(LocationPS defaultLocation) {
         this.defaultLocation = defaultLocation;
+    }
+
+    public void setWeatherEnabledSound(boolean[] weatherEnabledSound) {
+        this.weatherEnabledSound = weatherEnabledSound;
+    }
+
+    public void setConditionalWeather(boolean conditionalWeather) {
+        this.conditionalWeather = conditionalWeather;
+        if(!conditionalWeather) {
+            for (boolean bool: weatherEnabledSound) {
+                bool=true;
+            }
+        }
     }
 }
