@@ -13,6 +13,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.StrictMode;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -25,12 +26,20 @@ import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 import com.example.rodhuega.wacl.model.Alarm;
 import com.example.rodhuega.wacl.model.AlarmsAndSettings;
+import com.example.rodhuega.wacl.model.WeatherJSON.WeatherContent;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -197,43 +206,57 @@ public class RingtonePlayingService extends Service{
         if(alarm.getLocation()!=null && alarm.getConditionalWeather()) {
             //Conseguir el estado metereologico de la posicion configurada
             final Context contexto = this;
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    String url = "http://api.openweathermap.org/data/2.5/weather?lat=" + alarm.getLocation().getLatitude() + "&lon=" + alarm.getLocation().getLongitude() + "&appid=" + AlarmsAndSettings.OPENWEATHERMAPAPIKEY;
-                    Log.e("URL: ", url);
-                    RequestFuture<JSONObject> future = RequestFuture.newFuture();
-                    JsonObjectRequest request = new JsonObjectRequest(url, null, future, future);
-                    RequestQueue queue = Volley.newRequestQueue(contexto);
-                    queue.add(request);
-                    try {
-                        JSONObject response = future.get(10, TimeUnit.SECONDS);
-                        try {
-                            JSONArray weather = response.getJSONArray("weather");
-                            JSONObject weatherObject = weather.getJSONObject(0);
-                            int codeTime = weatherObject.getInt("id");
-                            //Analizar si tiene que sonar o no la alarma
-                            if (codeTime == 800 && !alarm.getWeatherEnabledSound()[0]) {//Despejado
-                                resultado[0] = false;
-                            } else if (codeTime > 800 && codeTime < 900 && !alarm.getWeatherEnabledSound()[1]) {//Nublado
-                                resultado[0] = false;
-                            } else if (codeTime >= 200 && codeTime < 600 && !alarm.getWeatherEnabledSound()[2]) {//tormenta/lloviendo/tronando
-                                resultado[0] = false;
-                            } else if (codeTime >= 600 && codeTime < 700 && !alarm.getWeatherEnabledSound()[3]) {//Nevando
-                                resultado[0] = false;
-                            }
-                            Log.e("tiempo", "" + codeTime);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } catch (InterruptedException | ExecutionException | TimeoutException e) {}
-                }
-            });t.start();
+            String Dirurl = "http://api.openweathermap.org/data/2.5/weather?lat=" + alarm.getLocation().getLatitude() + "&lon=" + alarm.getLocation().getLongitude() + "&appid=" + AlarmsAndSettings.OPENWEATHERMAPAPIKEY;
+            Log.e("URL: ", Dirurl);
+            //Construir conexion para json y obtener la string que contiene el json
+            String contenido=null;
             try {
-                t.join();
-            } catch (InterruptedException e) {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                URL url = new URL(Dirurl);
+                HttpURLConnection _conexion = (HttpURLConnection) url.openConnection();
+                _conexion.setRequestMethod("GET");
+                _conexion.setDoInput(true);
+                _conexion.connect();
+                StringBuilder builder = new StringBuilder();
+                InputStream inputStream = _conexion.getInputStream();
+                BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
+                String aux;
+                while((aux=rd.readLine())!=null) {
+                    builder.append(aux).append("\r\n");
+                }
+                inputStream.close();
+                _conexion.disconnect();
+                contenido=builder.toString();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            if(contenido!=null) {
+                Gson gson = new Gson();
+                JSONObject informacion = null;
+                try {
+                    informacion = new JSONObject(contenido);
+                    WeatherContent weather = gson.fromJson(informacion.toString(),WeatherContent.class);
+                    int codeTime = weather.getWeather().get(0).getId();
+                    //Analizar si tiene que sonar o no la alarma
+                    if (codeTime == 800 && !alarm.getWeatherEnabledSound()[0]) {//Despejado
+                        resultado[0] = false;
+                    } else if (codeTime > 800 && codeTime < 900 && !alarm.getWeatherEnabledSound()[1]) {//Nublado
+                        resultado[0] = false;
+                    } else if (codeTime >= 200 && codeTime < 600 && !alarm.getWeatherEnabledSound()[2]) {//tormenta/lloviendo/tronando
+                        resultado[0] = false;
+                    } else if (codeTime >= 600 && codeTime < 700 && !alarm.getWeatherEnabledSound()[3]) {//Nevando
+                        resultado[0] = false;
+                    }
+                    Log.e("tiempo", "" + codeTime);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }else {
+                Log.e("Tiempo","Fallo al conseguir el json");
+            }
+
         }
 
 
