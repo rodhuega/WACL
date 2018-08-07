@@ -87,9 +87,13 @@ public class RingtonePlayingService extends Service{
                 media_song = MediaPlayer.create(this, Uri.parse(alarm.getRingtoneTrack().getUri()));
                 media_song.start();
                 //Notificacion de que esta sonando la alarma
-                notification = new Notification.Builder(getApplicationContext());
+
                 if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+                    NotificationChannel channel = new NotificationChannel(AlarmsAndSettings.NOTIFICATION_CHANNEL_ID,AlarmsAndSettings.NOTIFICATION_CHANNEL_NAME,NotificationManager.IMPORTANCE_LOW);
+                    nm.createNotificationChannel(channel);
                     notification = new Notification.Builder(getApplicationContext(),AlarmsAndSettings.NOTIFICATION_CHANNEL_ID);
+                }else {
+                    notification = new Notification.Builder(getApplicationContext());
                 }
                 notification.setAutoCancel(true);
                 notification.setOngoing(true);

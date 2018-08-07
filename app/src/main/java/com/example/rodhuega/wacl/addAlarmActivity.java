@@ -179,7 +179,9 @@ public class addAlarmActivity extends AppCompatActivity {
                 }else {//Alarma de varios dias.
                     ArrayToRepeatBox();
                 }
-                ArrayWeatherToBox(editAlarm.getWeatherEnabledSound());//restauramos la parte metereologica a editar
+                if(editAlarm.isConditionalWeatherEnabled()) {
+                    ArrayWeatherToBox(editAlarm.getWeatherEnabledSound());//restauramos la parte metereologica a editar
+                }
                 useConditionalWeatherSwitch.setChecked(editAlarm.getConditionalWeather());
             }
         }catch (IOException | ClassNotFoundException ioe) {
